@@ -1,0 +1,45 @@
+******************************************************
+** Run instructions for DBSCAN Clustering Code **
+****************************************************** 
+
+1. Change directory to top directory.
+
+   cd /path/prior/to/top/directory/DBSCAN_Clustering_Code_Matt
+
+2. From top directory, run the command: 
+
+   javac -sourcepath /path/prior/to/top/directory/DBSCAN_Clustering_Code_Matt/sources/ -d classes/ sources/dbscan/*
+
+3. From top directory, then run the command:
+
+   java -cp /path/prior/to/top/directory/DBSCAN_Clustering_Code_Matt/classes/ dbscan/Gui
+
+4. Check top directory for outputs.
+
+----------------------------------------
+
+Alternative run options:
+
+1. If you wish to change the input file, complete steps 1 and 2 from above and then run the command:
+
+   java -cp /path/prior/to/top/directory/DBSCAN_Clustering_Code_Matt/classes/ dbscan/Gui [Input Filename]
+
+2. If you wish to change the minimum number of craters per group, complete steps 1 and 2 from above and then run the command:
+
+   java -cp /path/prior/to/top/directory/DBSCAN_Clustering_Code_Matt/classes/ dbscan/Gui [Input Filename] [Min. Crater Number]
+
+You must supply an input file to change the minimum number of craters per group. Input file can be the default file.
+
+---------------------------------------
+
+Notes: 
+
+1. Default values for DBSCAN algoritm are as follow:
+
+  Input Filename = input.txt
+  Min. Crater Number = 3
+
+2. If are working on a linux system or mac and wish to change the formatting of a text file created on the Windows platform that is plagued by the carriage-return character "^M". Run the following command:
+
+  sed 's|^M|\[Press enter]
+|g' < [Name of Original Text File] > [Name of New Text File] 
