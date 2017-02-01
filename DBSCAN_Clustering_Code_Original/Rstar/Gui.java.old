@@ -1,0 +1,320 @@
+package dbscan;
+
+import java.awt.*;
+import java.awt.event.*;
+import java.util.*;
+import java.util.List;
+import java.io.*;
+//import javax.swing.*;
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+import java.util.Timer;
+
+import Rstar.PPoint;
+import Rstar.SortedLinList;
+import Rstar.TreeCreation;
+import Rstar.Data;
+
+
+public class Gui
+{
+	
+	public static int minpoints;
+	public static int tdistance;
+	public static Boolean a;
+	public static Float x1;
+	public static Float y1;
+	public static Float d1;
+	public static Float d2;
+	public static Float x2;
+	public static Float y2;
+	public static Float c1;
+	public static Float c2;
+    
+	static ArrayList<Point> temp =new ArrayList<Point>();
+	private final static String newline = "\n";
+	static Boolean Y = false;
+	
+	
+    public static TreeCreation tc;
+    public static HashMap<Integer, Vector<Point>> m;
+    public static HashMap<Integer, Vector<Point>> m_part1;
+    public static HashMap<Integer, Vector<Point>> m_part2;
+    public static HashMap<Integer, Vector<Point>> m_part3;
+    public static HashMap<Integer, Vector<Point>> m_part4;
+    public static HashMap<Integer, Vector<Point>> m_part5;
+    
+    public static Point[] part1;
+	public static Point[] part2;
+	public static Point[] part3;
+	public static Point[] part4;
+	public static Point[] part5;
+	public static Vector<Point> hset = new Vector<Point>();
+	public static Vector<List> trl = new Vector<List>();
+    
+	
+	
+	public static Vector<Point> hset_1 = new Vector<Point>();
+	public static Vector<Point> hset_2 = new Vector<Point>();
+	public static Vector<Point> hset_3 = new Vector<Point>();
+	public static Vector<Point> hset_4 = new Vector<Point>();
+	public static Vector<Point> hset_5 = new Vector<Point>();
+	
+	final static JTextField tfx = new JTextField(4);
+	final static JTextField tfy = new JTextField(4);
+	final static JTextField tfd = new JTextField(4);
+	final static JTextField tfc = new JTextField(4);
+	final static JLabel status = new JLabel(".");
+	final static JLabel counter = new JLabel("Number of Points-" + hset.size());
+	
+	/*
+	 *      FRAME
+	 */
+	static JFrame j1 = new JFrame("DBscan");
+	
+	static CardLayout card =new CardLayout();
+	static JPanel wrap =new JPanel(card);
+	
+	public static void makeGui()
+    {
+		
+		j1.add(wrap);
+		j1.setBounds(250, 50, 800, 600);
+		j1.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		j1.setVisible(true);
+		
+		final JTextArea pta = new JTextArea(); 		pta.setEditable(false);
+		final JTextArea cta = new JTextArea(); 		cta.setEditable(false);
+		cta.setBorder(BorderFactory.createLineBorder(Color.black));
+		
+		MenuBar mbr =new MenuBar();
+		Menu file =new Menu("File");
+		MenuItem exit = new MenuItem("Exit");
+		file.add(exit);
+		mbr.add(file);
+		
+		j1.setMenuBar(mbr);
+		
+		exit.addActionListener(new ActionListener()
+        {
+			@Override
+			public void actionPerformed(ActionEvent ae)
+            {
+				String str ="Exit";
+                if(str.equals(ae.getActionCommand()))
+                {
+                    System.exit(0);
+                    ;
+                }
+			}
+		});
+        
+		status.setForeground(Color.BLACK);
+        
+        
+		/*
+		 *     ADD POINTS
+		 */
+        
+		final JPanel jp = new JPanel();
+		wrap.add(jp, "Add Points");
+		
+		jp.setLayout(new BorderLayout());
+		
+		JPanel jp2 = new JPanel();
+		jp.add(jp2, BorderLayout.EAST);
+		final  JPanel jp1 = new JPanel();
+		jp.add(jp1, BorderLayout.CENTER);
+		
+        
+		jp2.setLayout(new GridLayout(0,1));
+        
+		JButton applydbscan = new JButton("Apply DBscan");
+		
+		
+		applydbscan.setAlignmentX(0);
+		
+		jp2.add(applydbscan);
+        
+		
+		JPanel lowerbar =new JPanel();
+		jp.add(lowerbar,BorderLayout.SOUTH);
+		lowerbar.setLayout(new BoxLayout(lowerbar,BoxLayout.X_AXIS));
+		lowerbar.add(status);
+		lowerbar.add(Box.createHorizontalGlue());
+		lowerbar.add(counter);
+		
+		jp2.setBorder(BorderFactory.createLineBorder(Color.black));
+		
+		JPanel jp11 = new JPanel();
+		jp11.setLayout(new BoxLayout(jp11, BoxLayout.Y_AXIS));
+		
+		
+		/*
+		 *  GETTING INPUT VARIABLES
+		 */
+		
+		JPanel var =new JPanel();
+		var.setLayout(new BoxLayout(var ,BoxLayout.Y_AXIS));
+		JPanel var1 =new JPanel();
+		JPanel var2 =new JPanel();
+		JLabel varl1 =new JLabel ("Minimum Points");
+		JLabel varl2 =new JLabel ("Threshold Distance");
+		final JTextField tvar1 =new JTextField(4);
+		final JTextField tvar2 =new JTextField(4);
+		JButton submit = new JButton("Submit");
+		
+		var1.add(varl1); var1.add(tvar1);
+		var2.add(varl2); var2.add(tvar2);
+		var.add(Box.createVerticalGlue());
+		var.add(var1); var.add(var2); var.add(submit);
+		var.add(Box.createVerticalGlue());
+		
+		var.setBorder(BorderFactory.createLineBorder(Color.black));		
+		wrap.add(var, "Variables");
+		card.show(wrap, "Variables");
+		
+        /*
+		 * Submit Listener
+		 */
+		
+		submit.addActionListener(new ActionListener()
+                                 {
+            public void actionPerformed(ActionEvent ae)
+            {
+                String str = "Submit";
+                if ((str.compareTo(ae.getActionCommand()) == 0))
+                {
+                    minpoints = Integer.parseInt(tvar1.getText());
+                    tdistance = Integer.parseInt(tvar2.getText());
+                    
+                    card.show(wrap, "Add Points");
+                }
+			}
+        });
+        
+        
+		/*
+		 * APPLY DBSCAN BUTTON LISTENER
+		 */
+        
+		applydbscan.addActionListener(new ActionListener()
+        {
+			public void actionPerformed(ActionEvent ae)
+            {
+				String str = "Apply DBscan";
+				if ((str.compareTo(ae.getActionCommand()) == 0))
+                {
+					pta.setText(null);
+					dbscan test = new dbscan();
+					
+					trl.clear();
+					trl.addAll(test.applyDbscan(m,tc,hset));
+					PrintOutput.printList(trl,5);
+					PrintOutput.printListWithSD(trl,5);
+                    
+					card.show(wrap, "Output");
+				}
+			}
+		});
+	}
+    
+    
+	public static void main(String args[])
+    {
+        Float max_x = 0.0f;
+        Float max_y = 0.0f;
+		
+        System.out.println("Reading the input file.");
+        try
+        {
+            // Open the file that is the first command line parameter.
+            FileInputStream fstream = new FileInputStream("Input_80.txt");
+            
+            // Get the object of DataInputStream.
+            DataInputStream in = new DataInputStream(fstream);
+            BufferedReader br = new BufferedReader(new InputStreamReader(in));
+            String strLine;
+            int num_line = 0;
+            //Read File Line By Line
+            while ((strLine = br.readLine()) != null)
+            {
+                // Print the content on the console
+//                System.out.println (strLine);
+                
+                String[] temp;
+                
+			    /* delimiter */
+			    String delimiter = "\\s+";
+                
+			    /* given string will be split by space. */
+			    temp = strLine.split(delimiter);
+                
+			    /* print substrings */
+                if(num_line != 0)
+                {
+                    for(int i =0; i < temp.length ; i++)
+                    {
+//                      System.out.println(temp[i]);
+                    }  
+                    
+                    Float m_x = new Float(temp[0]);
+				    
+                    Float m_y = new Float(temp[1]);
+                    
+                    if(max_x <= m_x)
+                        max_x = m_x;
+                    if(max_y <= m_y)
+                        max_y = m_y;
+                    
+                    Float m_d = new Float(temp[2]);
+                    
+                    Float m_c = new Float(temp[3]);
+                    Point np = new Point(m_x,m_y,m_d,m_c);
+                    hset.add(np);
+                }
+                num_line++;
+            }
+            
+            //Close the input stream
+            in.close();
+        }
+        catch (Exception e) //Catch exception if any
+        {
+            System.err.println("Error: " + e.getMessage());
+        }
+        
+        Float image_size = 0.0f; //this is the max size of the data coodinate
+        
+        if(max_x>max_y)
+            image_size = max_x+500;
+        else
+            image_size = max_y+500;
+        
+        System.out.println("Creating tree.");
+        tc = new TreeCreation(2,image_size);
+        
+        System.out.println("Creating hash map.");
+        m = HashmapSearch.getHashMap(hset, tc);
+        
+        minpoints = 3;
+        
+        System.out.println("Running DBScan.");
+        dbscan test = new dbscan();
+        trl.clear();
+        trl.addAll(test.applyDbscan(m,tc,hset));
+        PrintOutput.printList(trl,4);
+        PrintOutput.printListWithSD(trl,4);
+        
+        makeGui();
+	}
+}
