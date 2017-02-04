@@ -6,9 +6,9 @@
 
    cd /path/prior/to/top/directory/DBSCAN_Clustering_Code_Matt
 
-2. From top directory, run the command: 
-
-   javac -sourcepath /path/prior/to/top/directory/DBSCAN_Clustering_Code_Matt/sources/ -d classes/ sources/dbscan/*
+2. From top directory, run the commands: 
+	
+   javac -sourcepath /path/prior/to/top/directory/DBSCAN_Clustering_Code_Matt/sources/ -d classes/ sources/Rstar/* sources/dbscan/*
 
 3. From top directory, then run the command:
 
@@ -20,24 +20,32 @@
 
 Alternative run options:
 
-1. If you wish to change the input file, complete steps 1 and 2 from above and then run the command:
+1. If you wish to change the input file, complete run steps 1 and 2 from above and then run the command:
 
    java -cp /path/prior/to/top/directory/DBSCAN_Clustering_Code_Matt/classes/ dbscan/Gui [Input Filename]
 
-2. If you wish to change the minimum number of craters per group, complete steps 1 and 2 from above and then run the command:
+2. If you wish to change the minimum number of craters per group, complete run steps 1 and 2 from above and then run the command:
 
-   java -cp /path/prior/to/top/directory/DBSCAN_Clustering_Code_Matt/classes/ dbscan/Gui [Input Filename] [Min. Crater Number]
+   java -cp /path/prior/to/top/directory/DBSCAN_Clustering_Code_Matt/classes/ dbscan/Gui [Input Filename] [Min. Crater Number per Cluster]
 
 You must supply an input file to change the minimum number of craters per group. Input file can be the default file.
+
+3. If you wish to change the map grid spacing, complete run steps 1 and 2 from above and then run the command:
+
+   java -cp /path/prior/to/top/directory/DBSCAN_Clustering_Code_Matt/classes/ dbscan/Gui [Input Filename] [Min. Crater Number per Cluster] [Map Grid Spacing]
+
+You must supply an input file and value for the minimum number of craters per cluster to change the map grid spacing. Input file can be the default file.
 
 ---------------------------------------
 
 Notes: 
 
-1. Default values for DBSCAN algoritm are as follow:
+1. Default values for DBSCAN algorithm are as follow:
 
   Input Filename = input.txt
-  Min. Crater Number = 3
+  Min. Crater Number per Cluster = 3
+  Map Grid Spacing = 30
+  
 
 2. If are working on a linux system or mac and wish to change the formatting of a text file created on the Windows platform that is plagued by the carriage-return character "^M". Run the following command:
 

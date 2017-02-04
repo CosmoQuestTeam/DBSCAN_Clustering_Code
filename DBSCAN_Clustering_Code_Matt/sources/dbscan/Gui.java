@@ -24,8 +24,9 @@ public class Gui
     /* Declaration/Initialization of class variables */
     /*************************************************/
     public static HashMap<Integer, Vector<Point>> m;
+    public static int interval; // Spacing between points on map grid
     public static int minpoints; // Minimum number of points needed for group to be considered a cluster
-    public static int naxes;
+    public static int naxes; // Number of physical axes for map grid
     public static String s_filename_input;
     public static TreeCreation tc;
     public static Vector<List> trl = new Vector<List>();
@@ -33,11 +34,11 @@ public class Gui
     static ArrayList<Point> temp = new ArrayList<Point>();
 
     /***********************************************************/
-    /* Main function: Accepts two arguements or no arguements. */
+    /* Main function: Accepts a maximum of three arguements.   */
     /* Reads in list composed of the (x, y) positions,         */
     /* diameters, and confidence (unused data) of craters and  */
     /* executes the dbscan algorithm to determine spatial      */
-    /* clustering of craters.                                   */
+    /* clustering of craters.                                  */
     /***********************************************************/
     public static void main(String args[])
     {
@@ -64,25 +65,35 @@ public class Gui
         if (args.length == 1)
         {
 	    s_filename_input = args[0];
-	    minpoints = 3;
+	    minpoints = 3; // Why minimum of 3 craters per cluster?
+	    interval = 30; // Why interval of 30 units?
 	}
 	else if (args.length == 2)
 	{
 	    s_filename_input = args[0];
 	    minpoints = Integer.parseInt(args[1]);
+	    interval = 30; // Why interval of 30 units?
+        }
+	else if (args.length == 3)
+	{
+	    s_filename_input = args[0];
+	    minpoints = Integer.parseInt(args[1]);
+	    interval = Integer.parseInt(args[2]);
         }
         else
 	{
 	    s_filename_input = new String("input.txt");
-	    minpoints = 3;
+	    minpoints = 3; // Why minimum of 3 craters per cluster?
+	    interval = 30; // Why interval of 30 units?
 	}        
         
 	/*********************/
 	/* Output parameters */
 	/*********************/
+	System.out.println("Input file: "+s_filename_input);
 	System.out.println("Minimum craters per cluster: "+minpoints);
-        System.out.println("Input file: "+s_filename_input);
-
+        System.out.println("Map grid spacing: "+interval);
+	
 	/**************************/
 	/* Check validity of file */
 	/**************************/
@@ -90,7 +101,7 @@ public class Gui
 	if (!f.isFile())
 	{
 	    System.err.println("\nError: "+s_filename_input+" does not exist.");
-	    System.err.println("Usage: java -cp /path/to/DBSCAN/classes/directory/ dbscan/Gui [Input Filename] [Min number of craters per cluster]");
+	    System.err.println("Usage: java -cp /path/to/DBSCAN/classes/directory/ dbscan/Gui [Input Filename] [Min number of craters per cluster] [Map grid spacing]");
 	    System.exit(1);
 	}
 	
@@ -162,6 +173,7 @@ public class Gui
 	{
 	    System.err.println("Error: " + e.getMessage());
 	}
+	max_d /= 2f; // Should only require to use the radius, not diameter
 
 	/*****************************************/
 	/* Record current time and print elapsed */
@@ -176,22 +188,32 @@ public class Gui
 	if ((minpoints < 1) || (hset.size() < minpoints))
 	{
 	    System.err.println("Error: Invalid minimum number of craters per cluster. Acceptable range: 1 - "+hset.size()+". Quantity given: "+minpoints+".");
-	    System.err.println("Usage: java -cp /path/to/DBSCAN/classes/directory/ dbscan/Gui [Input Filename] [Min number of craters per cluster]");
+	    System.err.println("Usage: java -cp /path/to/DBSCAN/classes/directory/ dbscan/Gui [Input Filename] [Min number of craters per cluster] [Map grid spacing]");
 	    System.exit(1);
 	}
 
 	/******************/
 	/* Set image size */
 	/******************/
-	max_d = 500f;
+	max_d = 500f; // Value in original code
         image_size = (max_x > max_y) ? max_x+max_d : max_y+max_d;
+
+	/**************************************/
+	/* Check validity of map grid spacing */
+	/**************************************/
+	if ((interval < 1) || (image_size < interval))
+	{
+	    System.err.println("Error: Invalid grid spacing. Acceptable range: 1 - "+image_size+"Value given: "+interval+".");
+	    System.err.println("Usage: java -cp /path/to/DBSCAN/classes/directory/ dbscan/Gui [Input Filename] [Min number of craters per cluster] [Map grid spacing]");
+	    System.exit(1);
+	}
         
         /********************/
 	/* Creation of tree */ 
 	/********************/
         System.out.println("Creating tree ...");
 	naxes = 2;
-        tc = new TreeCreation(naxes, image_size);
+        tc = new TreeCreation(naxes, image_size, interval);
 
 	/*****************************************/
 	/* Record current time and print elapsed */
@@ -200,7 +222,6 @@ public class Gui
         l_time_intermediate2 = System.currentTimeMillis();
         System.out.println("              ... took " + (l_time_intermediate2-l_time_intermediate1)/1000. + " seconds.");
         l_time_intermediate1 = l_time_intermediate2;
-	System.exit(0);
 
 	/*********************************/
         /* Create the hash map to search */
@@ -221,9 +242,9 @@ public class Gui
 	/**********************************/
         System.out.println("Running DBScan.");
 
-	/************************************/
-	/* Create an instance of the dbscan */
-	/************************************/
+	/******************************************/
+	/* Create an instance of the dbscan class */
+	/******************************************/
         dbscan test = new dbscan();
 
 	/*********************************/

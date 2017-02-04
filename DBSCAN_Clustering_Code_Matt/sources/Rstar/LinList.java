@@ -9,35 +9,44 @@ import java.io.*;
  */
 public class LinList implements Traceable
 {
- 
-//--------------------------------------------------------------------------
-    protected int   myCount         = 0;    // Total number of elements
-    protected SLink myFirst         = null; // pointer to the First element
-    protected SLink myLast          = null; // pointer to the Last  element
-    protected SLink myCurrent       = null; // pointer to current (cached) element
-    protected int   myCurrent_index = -1;   // index (0..count-1) of current element
-                                            //   -1 means undefined index
-    protected Class myElementClass  = null; // Class of the element
-//--------------------------------------------------------------------------
-    /**
-     * Default Constructor
-     */
-    public LinList()
-    {
-        try
-        {
-            this.myElementClass = Class.forName("Object");
-        }
-        catch (ClassNotFoundException e)
-        {
-            //System.out.println(e);
-        }
+    /*************************************************/
+    /* Declaration/Initialization of class variables */
+    /*************************************************/
+    protected Class myElementClass  = null;
+    protected int   myCount         = 0;
+    protected int   myCurrent_index = -1; // index (0..count-1) of current element -1 means undefined index
+    protected SLink myCurrent       = null;
+    protected SLink myFirst         = null;
+    protected SLink myLast          = null;
+
+    /***********************/
+    /* LinList Constructor */
+    /***********************/
+    // public LinList()
+    // {
+    //     try
+    //     {
+    //         this.myElementClass = Class.forName("Object");
+    // 	}
+    // 	catch (ClassNotFoundException e)
+    // 	{
+    //         //System.err.println(e);
+    // 	}
+    // }
+
+    /*****************************************/
+    /* LinList Constructor: Matt added class */
+    /*****************************************/
+    public LinList() {}
+
+    /***********************/
+    /* LinList Constructor */
+    /***********************/
+    public LinList(Class elementClass) 
+    { 
+	this.myElementClass = elementClass; 
     }
-    /**
-     * Constructor
-     */
-    public LinList(Class elementClass) { this.myElementClass = elementClass; }
-//--------------------------------------------------------------------------
+
     /**
      * Print out the elements on stream
      */

@@ -1,102 +1,102 @@
-////////////////////////////////////////////////////////////////////////
-// RTree
-////////////////////////////////////////////////////////////////////////
 package Rstar;
+
+/**************************/
+/* Built-in java packages */
+/**************************/
 import java.io.*;
-/**
-* R*-tree class
 
-* the header of the RTree is organised as follows:
-* +-----------+-------------+---------------+---------------+--------------+------+
-* | dimension | num_of_data | num_of_dnodes | num_of_inodes | root_is_data | root |
-* +-----------+-------------+---------------+---------------+--------------+------+
-
-*/
+/*************************************************************************************/
+/* R-tree class                                                                      */
+/*                                                                                   */
+/* the header of the RTree is organised as follows:                                  */
+/* +-----------+-------------+---------------+---------------+--------------+------+ */
+/* | dimension | num_of_data | num_of_dnodes | num_of_inodes | root_is_data | root | */
+/* +-----------+-------------+---------------+---------------+--------------+------+ */
+/*                                                                                   */
+/*************************************************************************************/
 public final class RTree
 {
-    int root;                     // block # of root node
-    RTNode root_ptr;              // root-node
+    /*************************************************/
+    /* Declaration/Initialization of class variables */
+    /*************************************************/
+    boolean re_level[];           // if re_level[i] is true, there was a reinsert on the ith level
     boolean root_is_data;         // true, if root is a data page
+    byte header[];
+    //  CachedBlockFile file;	  // storage manager for harddisc blocks
+    float node_weight[];          // weight for simulation of cache
+    int akt;                      // # of actually got data (get_next)
     int dimension;                // dimension of the data's
-
     int num_of_data;	          // # of stored data
     int num_of_dnodes;	          // # of stored data pages
     int num_of_inodes;	          // # of stored directory pages
- 
-    boolean re_level[];           // if re_level[i] is true,
-                                  // there was a reinsert on level i
-    LinList re_data_cands = new LinList(); // data entries to reinsert -> see insert()
-
-//    CachedBlockFile file;	      // storage manager for harddisc blocks
-
-    int akt;                      // # of actually got data (get_next)
-    byte header[];
-    float node_weight[];          // weight for simulation of cache
-    //protected int user_header;
-    int get_num()                 // returns # of stored data
-        { return num_of_data; }
-
     int page_access = 0;
-    
+    int root;                     // block # of root node
+    LinList re_data_cands = new LinList(); // data entries to reinsert -> see insert()
+    RTNode root_ptr;              // root-node
+    //protected int user_header;
 
-    /**
-    * Construct a new R*-tree
-    */
+    /*********************/
+    /* RTree Constructor */
+    /*********************/
     RTree(int _dimension)
-    // neuen R-Baum konstruieren
     {
-        node_weight = new float[20];
-
         dimension = _dimension;
-        root = 0;
-        root_ptr = null;
-        root_is_data = true;
+        node_weight = new float[20];
         num_of_data = num_of_inodes = num_of_dnodes = 0;
-
+        root_is_data = true;
+        root_ptr = null;
         root_ptr = new RTDataNode(this);
         root = root_ptr.block;
     }
 
- 
+    /******************************************/
+    /* Function returns number of stored data */
+    /******************************************/
+    int get_num() 
+    { 
+	return num_of_data; 
+    }
 
-
-    /**
-    * Insert a new data entry into the tree. Insertion is propagated to the
-    * root node. If the root overflows, it has to be split into 2 nodes and
-    * a new root will be introduced, to hold the split nodes.
-    */
+    /*****************************************************************************/
+    /* Function inserts a new data entry into the tree. Insertion is propagated  */
+    /* to the root node. If the root overflows, it has to be split into 2 nodes  */
+    /* and a new root will be introduced, to hold the split nodes.               */
+    /*****************************************************************************/
     void insert(Data d)
     {
-        int i, j;                                            // counters
-        RTNode sn[] = new RTNode[1];            // potential new node when SPLIT takes place
-        RTDirNode nroot_ptr;                    // new root when the root is SPLIT
-        int nroot;                                        // block # of nroot_ptr
-        DirEntry de;                                    // temp Object used to consruct new
-                                                                    // root dir entries when SPLIT takes place
+	/****************************************************/
+	/* Declaration/Initialization of function variables */
+	/****************************************************/
+        Data d_cand; // temp duplicates of d
+	Data dc; // temp duplicates of d
+        DirEntry de; // temp Object used to consruct new root dir entries when SPLIT takes place
+        float nmbr[]; // root_ptr MBR
+	int counter;
+        int nroot; // block # of nroot_ptr
         int split_root = Constants.NONE;  // return of root_ptr.insert(d)
-        Data d_cand, dc;                            // temp duplicates of d
-        float nmbr[];                                    // root_ptr MBR
+        RTDirNode nroot_ptr; // new root when the root is SPLIT
+        RTNode sn[] = new RTNode[1]; // potential new node when SPLIT takes place
+
 
         // load root into memory
        
-
         /*
         * no overflow occured until now. re_level array indicates if a re_insert
         * has been done at the specific level of the tree. Initially all entries
         * in this array should be set to false
         */
         re_level = new boolean[root_ptr.level+1];
-        for (i = 0; i <= root_ptr.level; i++)
+        for (int i = 0; i <= root_ptr.level; i++)
             re_level[i] = false;
 
         /*
         * insert d into re_data_cands as the first entry to insert
         * make a copy of d because it shouldnt be erased later
         */
-        dc = (Data)d.clone(); //duplicate the data into dc
+        dc = (Data)d.clone(); // make datacopy of d
         re_data_cands.insert(dc); //insert the datacopy into the
                                  //list of pending to be inserted data
-        j = -1;
+        counter = -1;
         while (re_data_cands.get_num() > 0)
         {
             // first try to insert data, then directory entries
@@ -164,25 +164,34 @@ public final class RTree
               // the new root is a directory node
               root_is_data = false;
             }
-            // go to the next data object to be (re)inserted
-            j++;
+
+	    /*************************************************/
+            /* Go to the next data object to be (re)inserted */
+	    /*************************************************/
+            counter++;
         }
 
-        // increase number of data in the tree after insertion
+	/************************************************************/
+        /* Increase number of data elements in tree after insertion */
+	/************************************************************/
         num_of_data++;
     }
 
-    /**
-    * Return the ith data element in the tree.
-    * --> Propagate to the root node.
-    */
+    /********************************************/
+    /* Return the ith data element in the tree. */
+    /* --> Propagate to the root node.          */
+    /********************************************/
     Data get(int i)
     {
+	/****************************************************/
+	/* Declaration/Initialization of function variables */
+	/****************************************************/
         Data d;
 
- 
-
-        // propagate to the root node
+	/***************************/
+        /* Propagate to root node  */
+	/* to retrieve ith element */
+	/***************************/
         d = ((Node)root_ptr).get(i);
 
         return d;
@@ -255,8 +264,6 @@ public final class RTree
 
         nearest_distanz = Constants.MAXREAL;
 
-  
-
         // NeighborListListe vorbereiten
         NeighborList.set_sorting(true);
 
@@ -272,15 +279,15 @@ public final class RTree
         ((Node)root_ptr).NearestNeighborSearch(QueryPoint,NeighborList,nearest_distanz);
     }
     
-    /**
-    * Return to res the objects in the tree that intersect with the parameter point.
-    * --> Propagate to the root node.
-    */
-   public void point_query(PPoint p, SortedLinList res)
+    /************************************/
+    /* Return to res the objects in the */
+    /* tree that intersect with the     */
+    /* parameter point.                 */
+    /* --> Propagate to the root node.  */
+    /************************************/
+    public void point_query(PPoint p, SortedLinList res)
     {
-        page_access = 0;
-        
-
+        page_access = 0;        
         ((Node)root_ptr).point_query(p, res);
     }
 
@@ -288,7 +295,7 @@ public final class RTree
     * Return to res the objects in the tree that intersect with the parameter circle.
     * --> Propagate to the root node.
     */
-   public void rangeQuery(PPoint center, float radius, SortedLinList res)
+    public void rangeQuery(PPoint center, float radius, SortedLinList res)
     {
         page_access = 0;
         
@@ -352,8 +359,6 @@ public final class RTree
     */
     void nodes(int nodes_a[])
     {
-       
-
         ((Node)root_ptr).nodes(nodes_a);
     }
 
@@ -367,10 +372,8 @@ public final class RTree
         }
 
        
-        System.out.println("Rtree saved: num_of_data=" + num_of_data +
-                                       " num_of_inodes=" + num_of_inodes +
-                                       " num_of_dnodes=" + num_of_dnodes); 
+        System.out.println("Rtree saved: num_of_data = " + num_of_data +
+                                       " num_of_inodes = " + num_of_inodes +
+                                       " num_of_dnodes = " + num_of_dnodes); 
     }
-    
-    
 }
