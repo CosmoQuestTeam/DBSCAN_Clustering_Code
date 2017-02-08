@@ -1,37 +1,44 @@
 package dbscan;
 
+/**************************/
+/* Built-in java packages */
+/**************************/
 import java.util.HashMap;
 import java.util.List;
 import java.util.Vector;
 
+/*************************/
+/* User-defined packages */
+/*************************/
 import Rstar.TreeCreation;
 
 public class MyThread extends Thread
 {
-	
-	private  Vector<Point> a;
-	private  HashMap<Integer, Vector<Point>> m;
-	private  TreeCreation tc;
-	public  Vector<List> trl = new Vector<List>(); 
-	private  int index;
+    /*************************************************/
+    /* Declaration/Initialization of class variables */
+    /*************************************************/
+    public  Vector<List> trl = new Vector<List>(); 
+    private  HashMap<Integer, Vector<Point>> m;
+    private  int index; 
+    private  TreeCreation tc;
+    private  Vector<Point> a;
     
-	public MyThread(HashMap<Integer, Vector<Point>> m,
-                    TreeCreation tc,Vector<Point> b,int index)
+    public MyThread(HashMap<Integer, Vector<Point>> m, TreeCreation tc,Vector<Point> b, int index)
     {
         this.a = b;
         this.m = m;
         this.tc = tc;
         this.index = index;
-	}
+    }
     
-	public void run()
+    public void run()
     {
-		dbscan db;
-		trl.clear();
-		db = new dbscan();
-	    trl.addAll(db.applyDbscan(m, tc, a));
-		PrintOutput.printListLong(trl,index);
-		PrintOutput.printListShort(trl,index);
-	}
-    
+	dbscan db;
+	Float radius = 20.0f;
+	trl.clear();
+	db = new dbscan();
+	trl.addAll(db.applyDbscan(m, tc, a, radius));
+	PrintOutput.printListLong(trl,index);
+	PrintOutput.printListShort(trl,index);
+    }
 }

@@ -2,12 +2,17 @@
    controller is now cast to type TreeCreation, and a rectangle is only drawn
    if its level is not less than the selected display level.
 */
-
 package Rstar;
+
+/**************************/
+/* Built-in java packages */
+/**************************/
 import java.awt.*;
 
-class RectArea extends Canvas {
-	SortedLinList queryres=null;
+@SuppressWarnings("deprecation")
+class RectArea extends Canvas
+{
+    SortedLinList queryres=null;
     Rectangle currentRect=null;
     Object controller;
     String outp = "";

@@ -1,12 +1,18 @@
 /* 
    Display dialog for user to enter new query
 */
-
 package Rstar;
+
+/**************************/
+/* Built-in java packages */
+/**************************/
 import java.awt.*;
 
-class QueryDialog extends Dialog {
-    public QueryDialog (int querytype, Object controller) {
+@SuppressWarnings("deprecation")
+class QueryDialog extends Dialog 
+{
+    public QueryDialog (int querytype, Object controller) 
+    {
         super( ((TreeCreation)controller).f, "New Query", true);
 
         t = (TreeCreation)controller;

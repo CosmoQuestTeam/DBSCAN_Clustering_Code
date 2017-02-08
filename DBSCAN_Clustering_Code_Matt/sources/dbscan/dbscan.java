@@ -23,7 +23,7 @@ public class dbscan
     /********************************************/
     /* Function that executes the database scan */
     /********************************************/
-    public Vector<List> applyDbscan(HashMap<Integer, Vector<Point>> m, TreeCreation tc, Vector<Point> list)
+    public Vector<List> applyDbscan(HashMap<Integer, Vector<Point>> m, TreeCreation tc, Vector<Point> list, Float radius)
     {
 	/****************************************************/
 	/* Declaration/Initialization of function variables */
@@ -55,12 +55,10 @@ public class dbscan
 	/****************************************************************************/
 	/* Tracking/reporting progress of function (Following code added by Stuart) */
         /****************************************************************************/
-	l_timeForOutput_counter = 0;
-        l_timeForOutput_interval = 1;
-        i_cratersForOutput_counter = 0;
-        i_cratersForOutput_interval = (int)Math.round(pointList.size()/1000.);
-        
-//        System.out.print(pointList.size()); //make sure it read in the correct number of craters
+	// l_timeForOutput_counter = 0;
+        // l_timeForOutput_interval = 1;
+        // i_cratersForOutput_counter = 0;
+        // i_cratersForOutput_interval = (int)Math.round(pointList.size()/1000.);
         
         /*****************************************************************************************/
 	/* Iterate through list of craters until clusters have been determined using entire list */
@@ -88,17 +86,19 @@ public class dbscan
 		/* point and includes those points as part of */
 		/* a group.                                   */
 		/**********************************************/
-		Neighbours = Utility.getNeighbours(p, m, tc);
+		Neighbours = Utility.getNeighbours(p, m, tc, radius);
 
-                //If we're over the threshold for a cluster (given the user input of minimum number of points), then ...
-                if (Neighbours.size() >= minpt)//*** shouldn't this be "minpt-1" because point "p" is not included in this? also, shouldn't we check for neighbors' neighbors before a minimum threshold is checked?
+                /****************************************/
+		/* Check cluster size against threshold */
+		/****************************************/
+		if (Neighbours.size() >= minpt)
                 {
-                    int ind=0; //dummy counter to iterate through all the neighbors and search for other matches
+                    int ind = 0;
                     
                     //... go through every point and check for other points that are neighbors (this is the "expandCluster" in Wikipedia's pseudocode for DBSCAN).
                     while(Neighbours.size() > ind)
                     {
-                        Point r = Neighbours.get(ind);  //save this point it to the structure "Point" instance "r"
+                        Point r = Neighbours.get(ind);
                         
                         //Check to see whether this point has been visited before (getNeighbors does not
                         //  set this to true), and if it has not, then repeat what we did above:
@@ -109,41 +109,36 @@ public class dbscan
                         if(!Utility.isVisited(r))
                         {
                             Utility.Visited(r);
-                            Vector<Point> Neighbours2 = Utility.getNeighbours(r, m, tc);
+                            Vector<Point> Neighbours2 = Utility.getNeighbours(r, m, tc, radius);
                             if (Neighbours2.size() >= minpt)
                             {
                                 Neighbours = Utility.Merge(Neighbours, Neighbours2);
                             }
                         } ind++;
                     }
-                    
-//                   System.out.println("N"+Neighbours.size());
-                    
+
                     //At this stage, we have a final cluster of neighbors of neighbors, ready to be output to the user.
                     resultList.add(Neighbours);
-                    
-                    
+
                     //Output the time, maybe.  Time will be output if:
                     //  1. The point we just visited is greater than the next crater at which an output
                     //      interval will be made.  As in, if you only want to output a minimum of every
                     //      1000 craters (i_cratersForOutput_interval), then check to see if index2 is
                     //      at that value.
                     //  2. The time elapsed since the last output is >= the time threshold that was set.
-                    if( (index2 >= i_cratersForOutput_counter) && (((System.currentTimeMillis()-l_timeForOutput_start)/1000) >= l_timeForOutput_counter) )
-                    {
-                        //All the crazy math in here is to fix the output % to ##.##% decimal points.
-                        System.out.println("Progress: " + (double)((int)Math.round((double)index2/(double)pointList.size()*10000.))/100. + "% done after " + (System.currentTimeMillis()-l_timeForOutput_start)/1000 + " seconds.");
+                    // if( (index2 >= i_cratersForOutput_counter) && (((System.currentTimeMillis()-l_timeForOutput_start)/1000) >= l_timeForOutput_counter) )
+                    // {
+                    //     //All the crazy math in here is to fix the output % to ##.##% decimal points.
+                    //     System.out.println("Progress: " + (double)((int)Math.round((double)index2/(double)pointList.size()*10000.))/100. + "% done after " + (System.currentTimeMillis()-l_timeForOutput_start)/1000 + " seconds.");
                         
-                        //Set the thresholds for the next output.
-                        i_cratersForOutput_counter += i_cratersForOutput_interval;
-                        l_timeForOutput_counter += l_timeForOutput_interval; //save how long the code's been running
-                    }
+                    //     //Set the thresholds for the next output.
+                    //     i_cratersForOutput_counter += i_cratersForOutput_interval;
+                    //     l_timeForOutput_counter += l_timeForOutput_interval; //save how long the code's been running
+                    // }
                 }
             }
-            index2++; //increment the main point counter so that we do the next point next
+            index2++;
         }
-        
-        //Output the time.
         System.out.println("Total time to run the clustering:  " + ((System.currentTimeMillis()-l_timeForOutput_start)/1000.));
         
         //This returns the final list of clusters so they can be output.
