@@ -99,15 +99,15 @@ public class dbscan
                     //      1000 craters (i_cratersForOutput_interval), then check to see if index2 is
                     //      at that value.
                     //  2. The time elapsed since the last output is >= the time threshold that was set.
-                    if( (index2 >= i_cratersForOutput_counter) && (((System.currentTimeMillis()-l_timeForOutput_start)/1000) >= l_timeForOutput_counter) )
-                    {
-                        //All the crazy math in here is to fix the output % to ##.##% decimal points.
-                        System.out.println("Progress: " + (double)((int)Math.round((double)index2/(double)pointList.size()*10000.))/100. + "% done after " + (System.currentTimeMillis()-l_timeForOutput_start)/1000 + " seconds.");
+                    // if( (index2 >= i_cratersForOutput_counter) && (((System.currentTimeMillis()-l_timeForOutput_start)/1000) >= l_timeForOutput_counter) )
+                    // {
+                    //     //All the crazy math in here is to fix the output % to ##.##% decimal points.
+                    //     System.out.println("Progress: " + (double)((int)Math.round((double)index2/(double)pointList.size()*10000.))/100. + "% done after " + (System.currentTimeMillis()-l_timeForOutput_start)/1000 + " seconds.");
                         
-                        //Set the thresholds for the next output.
-                        i_cratersForOutput_counter += i_cratersForOutput_interval;
-                        l_timeForOutput_counter += l_timeForOutput_interval; //save how long the code's been running
-                    }
+                    //     //Set the thresholds for the next output.
+                    //     i_cratersForOutput_counter += i_cratersForOutput_interval;
+                    //     l_timeForOutput_counter += l_timeForOutput_interval; //save how long the code's been running
+                    // }
                 }
             }
             index2++; //increment the main point counter so that we do the next point next

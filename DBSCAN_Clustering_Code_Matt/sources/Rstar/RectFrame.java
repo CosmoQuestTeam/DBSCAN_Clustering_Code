@@ -2,8 +2,13 @@
    Add Menu Bar and allow changing of display levels.
 */
 package Rstar;
+
+/**************************/
+/* Built-in java packages */
+/**************************/
 import java.awt.*;
 
+@SuppressWarnings("deprecation")
 public class RectFrame extends Frame
 {
     RFramedArea framedArea;
@@ -12,7 +17,7 @@ public class RectFrame extends Frame
     private TreeCreation t;
 
     RectFrame(Object controller)
-	{
+    {
         t = (TreeCreation) controller;
 
         setTitle("The R* Tree Created");

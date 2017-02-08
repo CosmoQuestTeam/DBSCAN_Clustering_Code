@@ -1,0 +1,29 @@
+#! /bin/bash
+
+###############################
+# Initialization of variables #
+###############################
+Executable='/Users/MRichardson/Desktop/Planetary_Science_Institute/CosmoQuest/CraterProjects/DBSCAN_Clustering_Code/Auxilary_Code/bin/CraterListGenerator'
+ResultsDir='/Users/MRichardson/Desktop/Planetary_Science_Institute/CosmoQuest/CraterProjects/DBSCAN_Clustering_Code/Auxilary_Scripts/CraterLists'
+
+#########################
+# Generate Crater Lists #
+#########################
+arg="${Executable} 100 1000 ${ResultsDir}/input_100.txt"
+eval ${arg}
+arg="${Executable} 1000 1000 ${ResultsDir}/input_1000.txt"
+eval ${arg}
+arg="${Executable} 10000 1000 ${ResultsDir}/input_10000.txt"
+eval ${arg}
+arg="${Executable} 50000 1000 ${ResultsDir}/input_50000.txt"
+eval ${arg}
+arg="${Executable} 75000 1000 ${ResultsDir}/input_75000.txt"
+eval ${arg}
+arg="${Executable} 150000 1000 ${ResultsDir}/input_150000.txt"
+eval ${arg}
+arg="${Executable} 500000 1000 ${ResultsDir}/input_500000.txt"
+eval ${arg}
+arg="${Executable} 750000 1000 ${ResultsDir}/input_750000.txt"
+eval ${arg}
+arg="${Executable} 1000000 1000 ${ResultsDir}/input_1000000.txt"
+eval ${arg}

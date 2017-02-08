@@ -1,0 +1,29 @@
+#! /bin/bash
+      
+###############################
+# Initialization of variables #
+###############################
+MasterCraterList='/Users/MRichardson/Desktop/Planetary_Science_Institute/CosmoQuest/CraterProjects/DBSCAN_Clustering_Code/Auxilary_Scripts/CraterLists/CraterLists.txt'
+MinimumCratersperCluster=3
+TestScript='/Users/MRichardson/Desktop/Planetary_Science_Institute/CosmoQuest/CraterProjects/DBSCAN_Clustering_Code/Auxilary_Scripts/TestDBSCANMattVersion.script'
+       
+#############
+# Test runs #
+#############
+for i in `seq 5 5 30`
+do
+    for j in `seq 0 1 4`
+    do
+        if [ ${j} -eq 0 ]
+        then
+            arg="${TestScript} \"${MasterCraterList}\" ${MinimumCratersperCluster} ${i} 1"
+        else
+            val=$((${j}*5))
+            arg="${TestScript} \"${MasterCraterList}\" ${MinimumCratersperCluster} ${i} ${val}"
+        fi
+        eval "${arg}"
+        wait
+    done
+done
+
+exit 0

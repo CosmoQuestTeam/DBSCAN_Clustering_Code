@@ -1,44 +1,60 @@
-/*******************************************************************************
-Purpose: The purpose of this file is to basically create a three-dimensional
-    point (x, y, d) that also has a confidence c (in actuality, this just
-    creates a structure for a Point that's comprised of 4 float variables).
-*******************************************************************************/
-
+/*********************************************************************************/
+/* Purpose: The purpose of this class is to basically create a three-dimensional */
+/* point (x, y, d) that also has a confidence c (in actuality, this just         */
+/* creates a structure for a Point that's comprised of 4 float variables).       */
+/*********************************************************************************/
 package dbscan;
 
 public class Point 
 {
-	private Float x;
-	private Float y;
-    private Float d;
+    /*************************************************/
+    /* Declaration/Initialization of class variables */
+    /*************************************************/
     private Float c;
+    private Float d;
+    private Float x;
+    private Float y;
     
-	Point(Float x, Float y, Float d, Float c)
+    /*********************/
+    /* Point Constructor */
+    /*********************/
+    Point(Float x, Float y, Float d, Float c)
     {
-		this.x = x;
-	    this.y = y;
-	    this.d = d;
-	    this.c = c;
+	this.x = x;
+	this.y = y;
+	this.d = d;
+	this.c = c;
     }
-	
-    
-	public Float getX ()
+
+    /***********************************/
+    /* Function that gets x coordinate */
+    /***********************************/
+    public Float getX ()
     {
-		return x;
+	return x;
     }
     
-	public Float getY () 
-	{
+    /***********************************/
+    /* Function that gets y coordinate */
+    /***********************************/
+    public Float getY () 
+    {
         return y;
-	}
+    }
 	
-	public Float getD ()
+    /***********************************/
+    /* Function that gets d coordinate */
+    /***********************************/
+    public Float getD ()
     {
-		return d;
+	return d;
     }
     
-	public Float getC()
-	{
-		return c;
-	}
+    /***********************************/
+    /* Function that gets c coordinate */
+    /***********************************/
+    public Float getC()
+    {
+	return c;
+    }
 }

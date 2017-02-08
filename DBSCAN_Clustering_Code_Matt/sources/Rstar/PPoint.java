@@ -1,3 +1,4 @@
+
 package Rstar;
 
 public class PPoint
@@ -18,9 +19,10 @@ public class PPoint
         data = new float[dimension];
     }
     
-    /********************************************************/
-    /* PPoint Constructor: sets user-defined dimensionality */
-    /********************************************************/
+    /*********************************************************/
+    /* PPoint Constructor: sets user-defined dimensionality  */
+    /* and initializes data array to same number of elements */
+    /*********************************************************/
     public PPoint(int dimension)
     {
         this.dimension = dimension;

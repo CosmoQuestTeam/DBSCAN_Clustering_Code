@@ -38,54 +38,44 @@ public class Utility
 	return distance;
     }
     
-    //A short but key method that goes through and gets (a) the physical distance (in
-    //  whatever units the data are in) between two points (your point of interest,
-    //  "p", and the point to compare to, "q"), and (b) the relative diameter difference
-    //  between the two points, and then if it is within the chosen threshold (your
-    //  "epsilon" parameter from the very beginning), then it counts the crater as a
-    //  member of the cluster and goes on.
     /*************************************************/
     /* Function returns vector containing all Points */
     /* that are within a user-defined radius of the  */
     /* current point being evaluated. Function works */
     /* independent of physical unit used.            */
     /*************************************************/
-    public static Vector<Point> getNeighbours(Point p, HashMap<Integer, Vector<Point>> m, TreeCreation tc)
+    public static Vector<Point> getNeighbours(Point p, HashMap<Integer, Vector<Point>> m, TreeCreation tc, Float radius)
     {
 	/****************************************************/
 	/* Declaration/Initialization of function variables */
 	/****************************************************/
-	Vector<Point> neigh = new Vector<Point>();
-        SortedLinList res;
-        PPoint pp;
-        pp = new PPoint(2);
-        res = new SortedLinList();
+	Float epsilon1 = 0.05f;
+	Float epsilon2 = 0.25f;
+	PPoint pp = new PPoint(2);
+	SortedLinList res = res = new SortedLinList();
+        Vector<Point> neigh = new Vector<Point>();
+
         pp.data[0] = p.getX();
         pp.data[1] = p.getY();
-        Float radius = 20.0f;
         tc.rt.rangeQuery(pp, radius, res);
         
-		for( Object obj = res.get_first(); obj != null; obj = res.get_next())
+	for( Object obj = res.get_first(); obj != null; obj = res.get_next())
         {
-//		 if(res.get_first()!=null)
-//		 {
             if(m.containsKey(((Data)obj).id))
             {
                 Iterator<Point> it = m.get(((Data)obj).id).iterator();
                 while(it.hasNext())
                 {
                     Point q = it.next();
-                    if( (getDistance(p, q) < (0.10*(p.getD()+q.getD())/2.)) &&  //if the absolute distance between the points is < X times the average of the diameters
-                        (Math.abs(p.getD()-q.getD()) < (0.25*Math.min(p.getD(),q.getD()))) ) //if the difference between the diameters if < X times the minimum diameter
+                    if( (getDistance(p, q) < (epsilon1*(p.getD()+q.getD()))) &&  //if the absolute distance between the points is < X times the average of the diameters
+                        (Math.abs(p.getD()-q.getD()) < (epsilon2*Math.min(p.getD(),q.getD()))) ) //if the difference between the diameters if < X times the minimum diameter
 		            {
 						neigh.add(q); //if Point q is within the epsilon threshold of Point p, then add it as a neighbor
 		            }
                 }
             }
-//		 }
         }
-
-		
+	
         //Di commented out the following stuff in the summer after I made the alteration.  This was due to his change to
         //  a tree structure and multi-threading.  The key alteration I made is included in his modification, above.
         
@@ -132,32 +122,31 @@ public class Utility
     
     
     //Simple function to add a point to the list of visited points so it's not checked again.
-	public static void Visited(Point d)
+    public static void Visited(Point d)
     {
         VisitList.add(d);
-	}
+    }
     
     
     //Checks to see if the point has been visited or not, returning a boolean true/false.
-	public static boolean isVisited(Point c)
+    public static boolean isVisited(Point c)
+    {
+	if (VisitList.contains(c))
 	{
-		if (VisitList.contains(c))
-		{
-			return true;
-		}
-		else
-		{
-			return false;
-		}
+	    return true;
 	}
-    
+	else
+	{
+	    return false;
+	}
+    }
     
     //This merges two groups of points into one.
-	public static Vector<Point> Merge(Vector<Point> a, Vector<Point> b)
-	{
+    public static Vector<Point> Merge(Vector<Point> a, Vector<Point> b)
+    {
         Iterator<Point> it5 = b.iterator();
         while(it5.hasNext())
-        {
+	{
             Point t = it5.next();
             if( !a.contains(t) )  //make sure that we're not duplicating a point
             {
@@ -165,16 +154,14 @@ public class Utility
             }
         }
         return a;
-	}
-    
+    }
     
     //Returns PointsList to DBscan.java
-	public static Vector<Point> getList(Vector<Point> list)
+    public static Vector<Point> getList(Vector<Point> list)
     {
         Vector<Point> newList =new Vector<Point>();
         newList.clear();
         newList.addAll(list);
         return newList;
-	}		
-    
+    }		
 }

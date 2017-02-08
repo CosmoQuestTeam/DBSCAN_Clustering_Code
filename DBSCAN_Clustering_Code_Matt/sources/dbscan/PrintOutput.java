@@ -10,6 +10,7 @@ package dbscan;
 import java.util.*;
 import java.io.*;
 
+@SuppressWarnings("unchecked")
 public class PrintOutput
 {
     public static void printListLong(Vector<List> cluster, int ind)
@@ -32,7 +33,7 @@ public class PrintOutput
             
             //This next code block outputs the short version of the clustered results.
             int index = 0;
-			for(List l : cluster)
+			for(List<Point> l : cluster)
             {
 				
 				Iterator<Point> j = l.iterator();
@@ -100,7 +101,7 @@ public class PrintOutput
             out.write("Cluster_ID"+"\t"+"X_wm"+"\t"+"X_sd"+"\t"+"Y_wm"+"\t"+"Y_sd"+"\t"+"D_wm"+"\t"+"D_sd"+"\t"+"C_wm"+"\t"+"N");
             out.newLine();
             int index = 1;
-            for(List l : cluster)
+            for(List<Point> l : cluster)
             {
                 if(l.size() > 1)
                 {

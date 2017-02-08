@@ -11,10 +11,11 @@ import java.io.*;
  */
 public class SortedLinList extends LinList
 {
-
-//--------------------------------------------------------------------------
+    /*************************************************/
+    /* Declaration/Initialization of class variables */
+    /*************************************************/
     private boolean IamIncreasing = true; //true if sort increasingly
-//--------------------------------------------------------------------------
+
     /**
      * sort IamIncreasing or decreasing
      */
@@ -22,7 +23,7 @@ public class SortedLinList extends LinList
     {
         this.IamIncreasing = _increasing;
     }
-//--------------------------------------------------------------------------
+
     /**
      * Insert an object in a sorted list
      */
@@ -133,13 +134,13 @@ public class SortedLinList extends LinList
         this.myCurrent_index = -1;
         if (this.isTraceable())
         {
-						System.out.println("SortedLinList.sort(IamIncreasing="+this.IamIncreasing+"): finished.");
+	    System.out.println("SortedLinList.sort(IamIncreasing="+this.IamIncreasing+"): finished.");
             this.check();
         }
     }
 //--------------------------------------------------------------------------
     /**
-     * Check integraty of list, true means list is valid
+     * Check integrity of list, true means list is valid
      */
     public boolean check()
     {

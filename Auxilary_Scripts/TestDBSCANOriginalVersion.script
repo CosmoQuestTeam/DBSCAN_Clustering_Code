@@ -1,0 +1,62 @@
+#! /bin/bash
+
+#######################
+# Retrieve parameters #
+#######################
+if [[ ${#} -ne 1 ]]
+then
+    printf "Usage: ./TestDBSCANMattVersion.script [Master Crater List]\n"
+    printf "Now terminating script...\n"
+    exit -1
+fi
+MasterCraterList=${1}
+
+##########################################
+# Verify existance of master crater list #
+##########################################
+if [[ ! -e ${MasterCraterList} ]]
+then
+    printf "File '${MasterCraterList}' does not exist!\n"
+    printf "Now terminating script...\n"
+    exit -1
+fi
+
+###############################
+# Initialization of variables #
+###############################
+ClassDir='/Users/MRichardson/Desktop/Planetary_Science_Institute/CosmoQuest/CraterProjects/DBSCAN_Clustering_Code/DBSCAN_Clustering_Code_Original'
+SourceDir='/Users/MRichardson/Desktop/Planetary_Science_Institute/CosmoQuest/CraterProjects/DBSCAN_Clustering_Code/DBSCAN_Clustering_Code_Original'
+sources1="${SourceDir}/Rstar"
+sources2="${SourceDir}/dbscan"
+Executable="dbscan/Gui"
+ResultDir='/Users/MRichardson/Desktop/Planetary_Science_Institute/CosmoQuest/CraterProjects/DBSCAN_Clustering_Code/Auxilary_Scripts/Test_DBSCAN_OriginalVersion'
+MinimumCraters=3
+
+############################
+# Compile DBSCAN algorithm #
+############################
+arg="javac ${sources2}/*.java"
+eval ${arg}
+arg="rsync -rv ${sources2}/* ${sources1}"
+
+#########################
+# Open file to write to #
+#########################
+echo -n " " >| "${ResultDir}/OutputFile.txt"
+
+################################
+# Generate  DBSCAN output file #
+################################
+while read list
+do
+    for i in `seq 0 1 4`
+    do
+	arg="java -cp ${ClassDir} ${Executable} ${MinimumCraters} ${list} >> ${ResultDir}/OutputFile.txt"
+	eval ${arg}
+	wait
+	printf "\n--------------------------------------------------\n" >> "${ResultDir}/OutputFile.txt"
+    done
+done < ${MasterCraterList}
+rm -rf log.txt out_*
+
+exit 0

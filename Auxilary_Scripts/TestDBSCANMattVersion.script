@@ -1,0 +1,63 @@
+#! /bin/bash
+
+#######################
+# Retrieve parameters #
+#######################
+if [[ ${#} -ne 4 ]]
+then
+    printf "Usage: ./TestDBSCANMattVersion.script [Master Crater List] [Minimum Craters per Cluster] [Map Grid Spacing] [Map Search Radius]\n"
+    printf "Now terminating script...\n"
+    exit -1
+fi
+MasterCraterList=${1}
+MinCratersperCluster=${2}
+MapGridSpacing=${3}
+SearchRadius=${4}
+
+##########################################
+# Verify existance of master crater list #
+##########################################
+if [[ ! -e ${MasterCraterList} ]]
+then
+    printf "File '${MasterCraterList}' does not exist!\n"
+    printf "Now terminating script...\n"
+    exit -1
+fi
+
+###############################
+# Initialization of variables #
+###############################
+ClassDir='/Users/MRichardson/Desktop/Planetary_Science_Institute/CosmoQuest/CraterProjects/DBSCAN_Clustering_Code/DBSCAN_Clustering_Code_Matt/classes'
+SourceDir='/Users/MRichardson/Desktop/Planetary_Science_Institute/CosmoQuest/CraterProjects/DBSCAN_Clustering_Code/DBSCAN_Clustering_Code_Matt/sources'
+sources1="${SourceDir}/Rstar/*"
+sources2="${SourceDir}/dbscan/*"
+Executable="dbscan/Gui"
+ResultDir='/Users/MRichardson/Desktop/Planetary_Science_Institute/CosmoQuest/CraterProjects/DBSCAN_Clustering_Code/Auxilary_Scripts/Test_DBSCAN_MattVersion'
+
+############################
+# Compile DBSCAN algorithm #
+############################
+arg='javac -sourcepath ${SourceDir} -d ${ClassDir} ${sources1} ${sources2}'
+eval ${arg}
+
+#########################
+# Open file to write to #
+#########################
+echo -n " " >| "${ResultDir}/OutputFile_R_${SearchRadius}_G_${MapGridSpacing}.txt"
+
+################################
+# Generate  DBSCAN output file #
+################################
+while read list
+do
+    for i in `seq 0 1 4`
+    do
+	arg="java -cp ${ClassDir} ${Executable} ${list} ${MinCratersperCluster} ${MapGridSpacing} ${SearchRadius} >> ${ResultDir}/OutputFile_R_${SearchRadius}_G_${MapGridSpacing}.txt"
+	eval ${arg}
+	wait
+	printf "\n--------------------------------------------------\n" >> "${ResultDir}/OutputFile_R_${SearchRadius}_G_${MapGridSpacing}.txt"
+    done
+done < ${MasterCraterList}
+rm -rf log.txt out_*
+
+exit 0
