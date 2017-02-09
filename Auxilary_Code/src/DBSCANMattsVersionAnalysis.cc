@@ -55,7 +55,7 @@ int main(int args, char* argv[])
     printf("Error in function main: File %s does not exist! Now terminating simulation ...\n", OutputFileList.c_str());
     exit(EXIT_FAILURE);
   }
-  
+ 
   while(getline(InFile, buffer))
     OutputFiles.push_back(buffer);
   InFile.close();
@@ -92,8 +92,8 @@ int main(int args, char* argv[])
   /* about table to assist    */
   /* reader                   */
   /****************************/
-  OutFile << "The table below shows time averages for different sections of my" << endl;
-  OutFile << "(Matt's) version of the DBScan code (note that the time averages" << endl;
+  OutFile << "The table below shows average execution time for different sections" << endl;
+  OutFile << "of my (Matt's) version of the DBScan code (note that the averages" << endl;
   OutFile << "are calculated from 5 identical runs). The time averages have" << endl;
   OutFile << "been calculated for different combinations for two of the four" << endl;
   OutFile << "parameters now passed to the DBScan code (note that one of the" << endl;
