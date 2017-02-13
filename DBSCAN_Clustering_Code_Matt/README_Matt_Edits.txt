@@ -25,3 +25,5 @@
 11. Found major bug in code while doing further testing! Integer variable "minpt" in the dbscan class utilizes a dangerous method of assigning values to a variable. Calling functions in the dbscan class from classes that are not called Gui results in incorrect behavior. Problem resolved by making integer variable "minpt" a passable parameter to the one function in the dbscan class.
 
 12. Wrote some more testing tools (in c++) to create simulated crater datasets where the number of clusters can be defined by the user. In addition, I wrote some code that maps the density (not exactly density but close enough) of crater points. 
+
+13. Added a Makefile for the compilation of the DBScan program.

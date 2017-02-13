@@ -39,7 +39,7 @@ int main(int args, char* argv[])
   /* Read-in crater list */
   /***********************/
   myPlotter.ReadCraterList();
-  
+
   /****************/
   /* Plot craters */
   /****************/

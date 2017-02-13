@@ -133,8 +133,8 @@ void CraterListPlotter::PlotCraterPoints()
   for(int i=0; i<(int)CraterPoints.size(); i++)
   {
     Crater = (nelements == 4) ?
-      new TEllipse(CraterPoints[i][0], CraterPoints[i][1], 0.5*CraterPoints[i][2]) :
-      new TEllipse(CraterPoints[i][3], CraterPoints[i][4], 0.5*CraterPoints[i][5]);
+      new TEllipse(CraterPoints[i][0], CraterPoints[i][1], 0.5*CraterPoints[i][2], 0.5*CraterPoints[i][2]) :
+      new TEllipse(CraterPoints[i][3], CraterPoints[i][4], 0.5*CraterPoints[i][5], 0.5*CraterPoints[i][5]);
     Crater->SetLineColor(kWhite);
     Crater->SetLineWidth(2);
     Crater->SetFillStyle(0);
@@ -181,8 +181,8 @@ void CraterListPlotter::ReadCraterList()
     printf("Error in function ReadCraterList: File %s does not exist! Now terminating simulation ...\n", CraterListFile.c_str());
     exit(EXIT_FAILURE);
   }
- 
-  bool test = !CraterListFile.substr(CraterListFile.rfind("_tagged.txt")).compare("_tagged.txt");
+  
+  bool test = ((int)(CraterListFile.rfind("_tagged.txt")) > 0);
   format = (test) ? "%f %f %f %f %f %f %f" : "%f %f %f %f";
   while(getline(InFile, buffer))
   {
