@@ -16,13 +16,13 @@ public class TreeCreation
     public int displaylevel = 199; // Matt Note: I think this is used for the gui
     public RectFrame f; // Matt Note: I think this is used for the gui
     public RTree rt;
+    private Float interval;
     private int dimension;
-    private int interval;
 
     /****************************/
     /* TreeCreation Constructor */
     /****************************/
-    public TreeCreation(int dimension, Float image_size, int interval)
+    public TreeCreation(int dimension, Float image_size, Float interval)
     {	
 	/****************************************************/
 	/* Declaration/Initialization of function variables */
@@ -246,10 +246,10 @@ public class TreeCreation
 	index_rect = 0;
 	for (int j=0; j<numRecLine; j++)
 	{
-	    float const2 = j*interval;
+	    Float const2 = j*interval;
 	    for (int i=0; i<numRecLine; i++) 
 	    {
-		float const3 = i*interval;
+		Float const3 = i*interval;
 		rt.insert(FillDataVector(dimension, index_rect, const3, const3+interval, const2, const2+interval));
 		index_rect++;
 	    }
@@ -263,7 +263,7 @@ public class TreeCreation
 	{    
 	    for (int i=0; i<numRecLine; i++)
 	    {
-		float const3 = i*interval;
+		Float const3 = i*interval;
 		rt.insert(FillDataVector(dimension, index_rect, const3, const3+interval, const1, image_size));
 		index_rect++;
 	    }

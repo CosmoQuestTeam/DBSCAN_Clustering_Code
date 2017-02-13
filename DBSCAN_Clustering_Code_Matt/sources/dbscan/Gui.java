@@ -23,9 +23,9 @@ public class Gui
     /*************************************************/
     /* Declaration/Initialization of class variables */
     /*************************************************/
+    public static Float interval; // Spacing between points on map grid
     public static Float radius; // Map search radius 
     public static HashMap<Integer, Vector<Point>> m;
-    public static int interval; // Spacing between points on map grid
     public static int minpoints; // Minimum number of points needed for group to be considered a cluster
     public static int naxes; // Number of physical axes for map grid
     public static String s_filename_input;
@@ -67,35 +67,35 @@ public class Gui
         {
 	    s_filename_input = args[0];
 	    minpoints = 3; // Why minimum of 3 craters per cluster?
-	    interval = 30; // Why interval of 30 units?
+	    interval = 30.0f; // Why interval of 30 units?
 	    radius = 20.0f; // Why search radius of 20 units?
 	}
 	else if (args.length == 2)
 	{
 	    s_filename_input = args[0];
 	    minpoints = Integer.parseInt(args[1]);
-	    interval = 30; // Why interval of 30 units?
+	    interval = 30.0f; // Why interval of 30 units?
 	    radius = 20.0f; // Why search radius of 20 units?
         }
 	else if (args.length == 3)
 	{
 	    s_filename_input = args[0];
 	    minpoints = Integer.parseInt(args[1]);
-	    interval = Integer.parseInt(args[2]);
+	    interval = Float.parseFloat(args[2]);
 	    radius = 20.0f; // Why search radius of 20 units?
         }
 	else if (args.length == 4)
 	{
 	    s_filename_input = args[0];
 	    minpoints = Integer.parseInt(args[1]);
-	    interval = Integer.parseInt(args[2]);
+	    interval = Float.parseFloat(args[2]);
 	    radius = Float.parseFloat(args[3]);
         }
         else
 	{
 	    s_filename_input = new String("input.txt");
 	    minpoints = 3; // Why minimum of 3 craters per cluster?
-	    interval = 30; // Why interval of 30 units?
+	    interval = 30.0f; // Why interval of 30 units?
 	    radius = 20.0f; // Why search radius of 20 units?
 	}        
         
@@ -209,7 +209,7 @@ public class Gui
 	/* Set image size */
 	/******************/
 	max_d = 500f; // Value in original code
-        image_size = (max_x > max_y) ? max_x+max_d : max_y+max_d;
+	image_size = (max_x > max_y) ? max_x+max_d : max_y+max_d;
 
 	/**************************************/
 	/* Check validity of map grid spacing */
@@ -274,8 +274,8 @@ public class Gui
 	/* Execution of DBSCAN algorithm */
 	/* Output stored in vector trl   */
 	/*********************************/
-        trl.addAll(test.applyDbscan(m, tc, hset, radius));
-        
+        trl.addAll(test.applyDbscan(m, tc, hset, minpoints, radius));
+	
 	/**********************************************************/
 	/* Output results of dbscan to file in long/short formats */
 	/**********************************************************/
