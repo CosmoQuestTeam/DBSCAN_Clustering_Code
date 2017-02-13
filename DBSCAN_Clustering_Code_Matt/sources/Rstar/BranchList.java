@@ -2,11 +2,11 @@ package Rstar;
 
 class BranchList implements Sortable
 {
-    int entry_number;
+    boolean section;
     float mindist;
     float minmaxdist;
-    boolean section;
-
+    int entry_number;
+    
     private float compute_erg(Sortable s, int sortCriterion)
     {
     	float erg = (float)0.0;
@@ -22,8 +22,9 @@ class BranchList implements Sortable
     public boolean lessThan(Sortable s, int sortCriterion)
     {
         float erg = compute_erg(s, sortCriterion);
-        if (erg < (float)0.0)    return true;
-            return false;
+        if (erg < (float)0.0)
+	    return true;
+	return false;
     }
                 
     public boolean greaterThan(Sortable s, int sortCriterion)

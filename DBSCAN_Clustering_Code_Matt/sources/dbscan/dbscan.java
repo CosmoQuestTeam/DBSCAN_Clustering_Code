@@ -15,7 +15,6 @@ public class dbscan
     /*************************************************/
     /* Declaration/Initialization of class variables */
     /*************************************************/
-    public static int minpt = Gui.minpoints; // Value set in main function of Gui class
     public Vector<List> resultList = new Vector<List>();
     public Vector<Point> pointList = new Vector<Point>();
     public Vector<Point> Neighbours;
@@ -23,7 +22,7 @@ public class dbscan
     /********************************************/
     /* Function that executes the database scan */
     /********************************************/
-    public Vector<List> applyDbscan(HashMap<Integer, Vector<Point>> m, TreeCreation tc, Vector<Point> list, Float radius)
+    public Vector<List> applyDbscan(HashMap<Integer, Vector<Point>> m, TreeCreation tc, Vector<Point> list, int minpt, Float radius)
     {
 	/****************************************************/
 	/* Declaration/Initialization of function variables */
@@ -40,7 +39,7 @@ public class dbscan
 	/*****************/
         resultList.clear();
         pointList.clear();
-        Utility.VisitList.clear();          //initialize and declare (it's set up in Utility.java) the list of points that have been already looked at
+        Utility.VisitList.clear(); // initialize and declare (it's set up in Utility.java) the list of points that have been already looked at
 	
 	/*********************************/
 	/* Retrieve data from input list */
@@ -139,7 +138,7 @@ public class dbscan
             }
             index2++;
         }
-        System.out.println("Total time to run the clustering:  " + ((System.currentTimeMillis()-l_timeForOutput_start)/1000.));
+        //System.out.println("Total time to run the clustering:  " + ((System.currentTimeMillis()-l_timeForOutput_start)/1000.));
         
         //This returns the final list of clusters so they can be output.
         return resultList;	

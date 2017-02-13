@@ -35,9 +35,10 @@ public class MyThread extends Thread
     {
 	dbscan db;
 	Float radius = 20.0f;
+	int minpoints = 3;
 	trl.clear();
 	db = new dbscan();
-	trl.addAll(db.applyDbscan(m, tc, a, radius));
+	trl.addAll(db.applyDbscan(m, tc, a, minpoints, radius));
 	PrintOutput.printListLong(trl,index);
 	PrintOutput.printListShort(trl,index);
     }

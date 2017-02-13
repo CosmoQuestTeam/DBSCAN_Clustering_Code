@@ -7,6 +7,7 @@ class Utility
 {
  public :
   static bool FileExists(std::string Filename);
+  static float RoundUp(float arg, float nearest);
 };
 
 #endif
