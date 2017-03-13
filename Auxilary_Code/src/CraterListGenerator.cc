@@ -1,5 +1,6 @@
 #include <gsl/gsl_randist.h>
 #include <gsl/gsl_rng.h>
+#include <iostream>
 #include <vector>
 
 #include "CraterListGenerator.h"
@@ -81,7 +82,7 @@ void CraterListGenerator::ListGenerator2()
   /*******************************************/
   /* Declaration/Initialization of variables */
   /*******************************************/
-  const float MeanDiameter = 15; // Crater mean diameter
+  const float MeanDiameter = 25; // Crater mean diameter
   const float SigmaDiameter = 0.1*MeanDiameter; // Crater diameter standard deviation
   const gsl_rng_type* T;
   gsl_rng* r;
@@ -105,6 +106,8 @@ void CraterListGenerator::ListGenerator2()
     float p[2] = {gsl_rng_uniform(r)*(image_size), gsl_rng_uniform(r)*(image_size)};
     tempClusterCenters.push_back(vector<float>(p, p+(sizeof p)/(sizeof p[0])));
   }
+  for(int i=0; i<(int)tempClusterCenters.size(); i++)
+    cout << "Cluster center " << i << ": (" << tempClusterCenters[i][0] << ", " << tempClusterCenters[i][1] << ")." << endl;
 
   /********************************************************************************/
   /* Generate event list (Note: Steps to generate list provided by Stuart Robbin) */
@@ -124,8 +127,8 @@ void CraterListGenerator::ListGenerator2()
     /* the randomly chosen center from previous  */
     /* step                                      */
     /*********************************************/
-    float SigmaX = 0.1*tempClusterCenters[index][0];
-    float SigmaY = 0.1*tempClusterCenters[index][1];
+    float SigmaX = 0.05*tempClusterCenters[index][0];
+    float SigmaY = 0.05*tempClusterCenters[index][1];
     float x = tempClusterCenters[index][0]+gsl_ran_gaussian(r, SigmaX);
     float y = tempClusterCenters[index][1]+gsl_ran_gaussian(r, SigmaY);
     row[0] = (x >= 0) ? x : 0; // x coordinate (Unit: variable unit of length)

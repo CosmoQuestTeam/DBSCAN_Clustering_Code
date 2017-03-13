@@ -156,7 +156,7 @@ public class PrintOutput
             out.close();
             
             //Print to the command line how many clusters the code found.
-            System.out.println("Total craters found: " + (index-1)); //-1 because the loop type increments the counter one past the total number of clusters
+            System.out.println("Total clusters found: " + (index-1)); //-1 because the loop type increments the counter one past the total number of clusters
         }
         
         catch (Exception e) //Catch exception if any

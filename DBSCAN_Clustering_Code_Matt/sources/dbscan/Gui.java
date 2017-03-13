@@ -151,7 +151,7 @@ public class Gui
 		/***************/
 		/* Record data */
 		/***************/
-		if ((p1 != -1) && !strLine.substring(0, p1).equals("X"))
+		if ((p1 != -1) && !strLine.substring(0, p1).toUpperCase().equals("X"))
 		{
 		    Float m_x = new Float(strLine.substring(0, p1));
 		    Float m_y = new Float(strLine.substring(p1+1, p2));
@@ -185,6 +185,7 @@ public class Gui
 	catch (Exception e)
 	{
 	    System.err.println("Error: " + e.getMessage());
+	    System.exit(1);
 	}
 	max_d /= 2f; // Should only require to use the radius, not diameter
 

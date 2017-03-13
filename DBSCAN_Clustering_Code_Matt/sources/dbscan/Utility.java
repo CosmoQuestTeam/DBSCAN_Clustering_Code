@@ -68,7 +68,7 @@ public class Utility
                 {
                     Point q = it.next();
                     if( (getDistance(p, q) < (epsilon1*(p.getD()+q.getD()))) &&  //if the absolute distance between the points is < X times the average of the diameters
-                        (Math.abs(p.getD()-q.getD()) < (epsilon2*Math.min(p.getD(),q.getD()))) ) //if the difference between the diameters if < X times the minimum diameter
+                        (Math.abs(p.getD()-q.getD()) < (epsilon2*Math.min(p.getD(),q.getD()))) ) //if the difference between the diameters is < X times the minimum diameter
 		            {
 						neigh.add(q); //if Point q is within the epsilon threshold of Point p, then add it as a neighbor
 		            }
