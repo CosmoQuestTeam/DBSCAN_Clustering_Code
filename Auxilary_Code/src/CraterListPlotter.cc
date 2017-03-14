@@ -7,8 +7,11 @@
 #include "TCanvas.h"
 #include "TColor.h"
 #include "TEllipse.h"
+#include "TGaxis.h"
 #include "TH1.h"
 #include "TH2.h"
+#include "TList.h"
+#include "TPaletteAxis.h"
 #include "TStyle.h"
 
 #include "CraterListPlotter.h"
@@ -28,8 +31,8 @@ void CraterListPlotter::PlotCraterPoints()
   /****************************************************/
   /* Declaration/Initialization of function variables */
   /****************************************************/
-  const int canheight = 800;
-  const int canwidth = 800;
+  const int canheight = 1000;
+  const int canwidth = 1000;
   const int NRGBs = 5;
   double Blue[NRGBs] = {0.90, 1.00, 0.32, 0.00, 0.00}; // Color blue
   double Green[NRGBs] = {0.50, 0.81, 1.00, 0.57, 0.00}; // Color green
@@ -53,7 +56,12 @@ void CraterListPlotter::PlotCraterPoints()
   /*********************/
   /* Initialize Canvas */
   /*********************/
-  can = new TCanvas("Canvas", "Crater Plot w/o Crater Positions", canwidth, canheight);
+  can = new TCanvas("Canvas", "Crater Plot w/o Crater Annulus", canwidth, canheight);
+  can->SetRightMargin(0.25);
+  can->SetLeftMargin(0.15);
+  can->SetBottomMargin(0.1);
+  can->SetTopMargin(0.1);
+  TGaxis::SetMaxDigits(3);
 
   /*******************/
   /* Initialize Plot */
@@ -92,40 +100,65 @@ void CraterListPlotter::PlotCraterPoints()
   /******************/
   /* Graph settings */
   /******************/
-  hist->SetTitle("Crater Map w/o Crater Positions");
+  hist->SetTitle("Crater Map w/o Crater Annuli");
   hist->GetXaxis()->SetTitle("X [unit]");
   hist->GetXaxis()->CenterTitle();
   hist->GetYaxis()->SetTitle("Y [unit]");
   hist->GetYaxis()->SetTitleOffset(1.5);
   hist->GetYaxis()->CenterTitle();
-  //hist->GetZaxis()->SetTitle("Number of craters");
+  hist->GetZaxis()->SetTitle("Number of craters");
+  hist->GetZaxis()->SetTitleOffset(1.5);
+  hist->GetZaxis()->CenterTitle();
 
   /******************/
   /* Draw histogram */
   /******************/
-  hist->Draw("COLZ0");
+  hist->Draw("COLZ");
   hist->SetMinimum(-1);
   
+  /*********************/
+  /* Reposition Z axis */
+  /*********************/
+  can->Update();
+  TPaletteAxis *palette = (TPaletteAxis*)hist->GetListOfFunctions()->FindObject("palette");
+  palette->SetX1NDC(0.85);
+  palette->SetX2NDC(0.9);
+  can->Modified();
+  can->Update();
+
   /***************************/
   /* Plot and save histogram */
   /***************************/
   PlotFilename = OutputFile.substr(0, OutputFile.rfind(".ps"))+string("_v1.ps");
   can->SaveAs(PlotFilename.c_str());
-  //can->SaveAs("PlotCraters1.ps");
 
-  /***********************************************/
-  /* Same histogram but with overplot of craters */  
-  /***********************************************/
+  /*****************************************************/
+  /* Same histogram but with overplot of crater annuli */  
+  /*****************************************************/
   /*****************************************/
   /* Reset Canvas and copy above histogram */
   /*****************************************/
   can2 = new TCanvas("Canvas2", "", canwidth, canheight);
+  can2->SetRightMargin(0.25);
+  can2->SetLeftMargin(0.15);
+  can2->SetBottomMargin(0.1);
+  can2->SetTopMargin(0.1);
 
   /***************************************/
   /* Redraw histogram with same settings */
   /***************************************/
-  hist->SetTitle("Crater Map with Crater Positions");
-  hist->Draw("COLZ0");
+  hist->SetTitle("Crater Map with Crater Annuli");
+  hist->Draw("COLZ");
+
+  /*********************/
+  /* Reposition Z axis */
+  /*********************/
+  can2->Update();
+  TPaletteAxis *palette2 = (TPaletteAxis*)hist->GetListOfFunctions()->FindObject("palette");
+  palette2->SetX1NDC(0.85);
+  palette2->SetX2NDC(0.9);
+  can2->Modified();
+  can2->Update();
 
   /********************/
   /* Overplot craters */
@@ -138,7 +171,7 @@ void CraterListPlotter::PlotCraterPoints()
     Crater->SetLineColor(kWhite);
     Crater->SetLineWidth(2);
     Crater->SetFillStyle(0);
-    Crater->DrawClone("same");
+    Crater->DrawClone();
     delete Crater;
   }
 
@@ -147,7 +180,6 @@ void CraterListPlotter::PlotCraterPoints()
   /***************************/
   PlotFilename = OutputFile.substr(0, OutputFile.rfind(".ps"))+string("_v2.ps");
   can2->SaveAs(PlotFilename.c_str());
-  //can2->SaveAs("PlotCraters2.ps");
 
   /*********************/
   /* Deallocate memory */
