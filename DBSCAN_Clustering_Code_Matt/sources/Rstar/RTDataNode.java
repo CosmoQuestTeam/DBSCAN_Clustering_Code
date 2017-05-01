@@ -3,34 +3,23 @@
 ////////////////////////////////////////////////////////////////////////
 
 /**
-* RDataNode implements data (leaf) nodes in the R*-tree
-
-* the block of the RTDirNode is organised as follows:
-* +--------+---------+---------+-----+------------------+
-* | header | Data[0] | Data[1] | ... | Data[capacity-1] |
-* +--------+---------+---------+-----+------------------+
-
-* the header of the RTDirNode is organised as follows:
-* +-------+-------------+
-* | level | num_entries |
-* +-------+-------------+
-*/
+ * RDataNode implements data (leaf) nodes in the R*-tree
+ * <p>
+ * the block of the RTDirNode is organised as follows:
+ * +--------+---------+---------+-----+------------------+
+ * | header | Data[0] | Data[1] | ... | Data[capacity-1] |
+ * +--------+---------+---------+-----+------------------+
+ * <p>
+ * the header of the RTDirNode is organised as follows:
+ * +-------+-------------+
+ * | level | num_entries |
+ * +-------+-------------+
+ */
 
 package Rstar;
-import java.io.*;
 
-public final class RTDataNode extends RTNode implements Node
-{
-	Data data[];                         // array of data (leaf mbrs)
-
-    public boolean is_data_node()        // this is a data node
-    {return true;}
-
-    public void overlapping(float p[], int nodes_t[])
-    { nodes_t[0]++; }
-
-    public void nodes(int nodes_a[])     // see RTree.nodes()
-    { nodes_a[0]++; }
+public final class RTDataNode extends RTNode implements Node {
+    Data data[];                         // array of data (leaf mbrs)
 
     public RTDataNode(RTree rt)
     // create a brand new RTDataNode
@@ -48,11 +37,11 @@ public final class RTDataNode extends RTNode implements Node
 
         // von der Blocklaenge geht die Headergroesse ab
         header_size = Constants.SIZEOF_SHORT  //level
-                      + Constants.SIZEOF_INT; //num_entries
-        capacity =6;
+                + Constants.SIZEOF_INT; //num_entries
+        capacity = 6;
 //        capacity = (rt.file.get_blocklength() - header_size) / d.get_size();
- //       System.out.println("RTDataNode created. Id: " + rt.num_of_dnodes);
- //       System.out.println("RTDataNode capacity " + capacity);
+        //       System.out.println("RTDataNode created. Id: " + rt.num_of_dnodes);
+        //       System.out.println("RTDataNode capacity " + capacity);
 
         //delete d;
 
@@ -61,32 +50,40 @@ public final class RTDataNode extends RTNode implements Node
         // Daher wird ueber statische Variablen die Information uebergeben.
 
         //RTDataNode__dimension = dimension;
-        data = new Data[capacity];   
+        data = new Data[capacity];
 
-        rt.num_of_dnodes ++;
+        rt.num_of_dnodes++;
 
         // Must be written to disk --> Set dirty bit
         dirty = true;
     }
 
-   
-
-
-    public void print()
+    public boolean is_data_node()        // this is a data node
     {
+        return true;
+    }
+
+    public void overlapping(float p[], int nodes_t[]) {
+        nodes_t[0]++;
+    }
+
+    public void nodes(int nodes_a[])     // see RTree.nodes()
+    {
+        nodes_a[0]++;
+    }
+
+    public void print() {
         int i, n;
 
         n = get_num();
-        for (i = 0; i < n ; i++)
-        {
+        for (i = 0; i < n; i++) {
             System.out.println(data[i].data[0] + " " + data[i].data[1]);
         }
         System.out.println("level " + level);
     }
 
 
-    public int get_num_of_data()
-    {
+    public int get_num_of_data() {
         return get_num();
     }
 
@@ -98,13 +95,11 @@ public final class RTDataNode extends RTNode implements Node
 
         mbr = data[0].get_mbr();
         n = get_num();
-        for (j = 1; j < n; j++)
-        {
-                tm = data[j].get_mbr();
-                for (i = 0; i < 2*dimension; i += 2)
-                {
-                    mbr[i]   = Constants.min(mbr[i],   tm[i]);
-                    mbr[i+1] = Constants.max(mbr[i+1], tm[i+1]);
+        for (j = 1; j < n; j++) {
+            tm = data[j].get_mbr();
+            for (i = 0; i < 2 * dimension; i += 2) {
+                mbr[i] = Constants.min(mbr[i], tm[i]);
+                mbr[i + 1] = Constants.max(mbr[i + 1], tm[i + 1]);
             }
         }
         return mbr;
@@ -127,28 +122,27 @@ public final class RTDataNode extends RTNode implements Node
         float mbr_array[][]; // to be passed as parameter to RTNode.split()
         Data new_data1[], new_data2[];
 
-    //#ifdef SHOWMBR
-    //    split_000++;
-    //#endif
+        //#ifdef SHOWMBR
+        //    split_000++;
+        //#endif
 
         // initialize n, distribution[0]
         n = get_num();
         distribution = new int[1][];
 
         // allocate mbr_array to contain the mbrs of all entries
-        mbr_array = new float[n][2*dimension];
-        for (i = 0; i < n; i++)
-        {
+        mbr_array = new float[n][2 * dimension];
+        for (i = 0; i < n; i++) {
             mbr_array[i] = data[i].get_mbr();
         }
 
         // calculate distribution[0], dist by calling RTNode.split()
         dist = super.split(mbr_array, distribution);
-        
+
         // neues Datenarray erzeugen
         // -. siehe Konstruktor
         //RTDataNode__dimension = dimension;
-        
+
         // create new Data arrays to store the split results
         new_data1 = new Data[capacity];
         new_data2 = new Data[capacity];
@@ -157,7 +151,7 @@ public final class RTDataNode extends RTNode implements Node
             new_data1[i] = data[distribution[0][i]];
 
         for (i = dist; i < n; i++)
-            new_data2[i-dist] = data[distribution[0][i]];
+            new_data2[i - dist] = data[distribution[0][i]];
 
         // set the new arrays as data arrays of this and splitnode's data
         data = new_data1;
@@ -167,7 +161,7 @@ public final class RTDataNode extends RTNode implements Node
         num_entries = dist;
         splitnode.num_entries = n - dist;  // muss wegen Rundung so bleiben !!
     }
-    
+
     /*
     * insert a new data entry in this node
     * this function may cause some data to be reinserted and/or the node to split
@@ -183,11 +177,11 @@ public final class RTDataNode extends RTNode implements Node
         Data nd, new_data[];
 
         if (get_num() == capacity)
-                Constants.error("RTDataNode.insert: maximum capacity violation", true);
+            Constants.error("RTDataNode.insert: maximum capacity violation", true);
 
         // insert data into the node
         data[get_num()] = d;
-        num_entries ++;
+        num_entries++;
 
         // Plattenblock zum Schreiben markieren
         dirty = true;
@@ -203,20 +197,19 @@ public final class RTDataNode extends RTNode implements Node
                 mbr = get_mbr();
                 center = new float[dimension];
                 for (i = 0; i < dimension; i++)
-                     center[i] = (mbr[2*i] + mbr[2*i+1]) / (float)2.0;
+                    center[i] = (mbr[2 * i] + mbr[2 * i + 1]) / (float) 2.0;
 
                 // neues Datenarray erzeugen
                 // -. siehe Konstruktor
                 //RTDataNode__dimension = dimension;
-                
+
                 //construct a new array to hold the data sorted according to their distance
                 //from the node mbr's center
                 new_data = new Data[capacity];
 
                 // initialize array that will sort the mbrs
                 sm = new SortMbr[num_entries];
-                for (i = 0; i < num_entries; i++)
-                {
+                for (i = 0; i < num_entries; i++) {
                     sm[i] = new SortMbr();
                     sm[i].index = i;
                     sm[i].dimension = dimension;
@@ -227,20 +220,19 @@ public final class RTDataNode extends RTNode implements Node
                 // sort by distance of each center to the overall center
                 Constants.quickSort(sm, 0, sm.length - 1, Constants.SORT_CENTER_MBR);
 
-                last_cand = (int) ((float)num_entries * 0.30);
+                last_cand = (int) ((float) num_entries * 0.30);
 
                 // copy the nearest 70% candidates to new array
                 for (i = 0; i < num_entries - last_cand; i++)
-                        new_data[i] = data[sm[i].index];
+                    new_data[i] = data[sm[i].index];
 
                 // insert last 30% candidates into reinsertion list
-                for ( ; i < num_entries; i++)
-                {
+                for (; i < num_entries; i++) {
                     nd = new Data(dimension);
                     nd = data[sm[i].index];
                     my_tree.re_data_cands.insert(nd);
                 }
-                
+
                 data = new_data;
 
                 my_tree.re_level[0] = true;
@@ -252,27 +244,23 @@ public final class RTDataNode extends RTNode implements Node
                 dirty = true;
 
                 return Constants.REINSERT;
-            }
-            else
-            {
-            // reinsert was applied before
-            // --> split the node
+            } else {
+                // reinsert was applied before
+                // --> split the node
                 sn[0] = new RTDataNode(my_tree);
                 sn[0].level = level;
-                split((RTDataNode)sn[0]);
+                split((RTDataNode) sn[0]);
             }
             return Constants.SPLIT;
-        }
-        else
+        } else
             return Constants.NONE;
     }
 
-    public Data get(int i)
-    {
+    public Data get(int i) {
         Data d;
 
         if (i >= get_num())
-        // if there is no i-th object -. null
+            // if there is no i-th object -. null
             return null;
 
         d = new Data(dimension);
@@ -281,9 +269,8 @@ public final class RTDataNode extends RTNode implements Node
         return d;
     }
 
-    public void region(float mbr[])
-    {
-        int i, n,j;
+    public void region(float mbr[]) {
+        int i, n, j;
         float dmbr[];
 
         n = get_num();
@@ -291,86 +278,79 @@ public final class RTDataNode extends RTNode implements Node
         // teste alle Rechtecke auf Ueberschneidung
         {
             dmbr = data[i].get_mbr();
-            if (Constants.section(dimension, dmbr, mbr))
-            {
+            if (Constants.section(dimension, dmbr, mbr)) {
                 System.out.println("( ");
-                for( j = 0; j < dimension; j++)
+                for (j = 0; j < dimension; j++)
                     System.out.println(" " + dmbr[j]);
 
                 System.out.println(" )");
             }
-          }
+        }
     }
 
-    public void point_query(float p[])
-    {
-        int i, n,j;
+    public void point_query(float p[]) {
+        int i, n, j;
         float dmbr[];
 
-    //#ifdef ZAEHLER
-    //    page_access++;
-    //#endif
+        //#ifdef ZAEHLER
+        //    page_access++;
+        //#endif
 
         n = get_num();
         for (i = 0; i < n; i++)
         // teste alle Rechtecke auf Ueberschneidung
         {
             dmbr = data[i].get_mbr();
-            if (Constants.section(dimension, p, dmbr))
-                    {
+            if (Constants.section(dimension, p, dmbr)) {
                 //        System.out.println("( ");
                 //        for( j = 0; j < dimension; j++)
                 //            System.out.println(" %f",dmbr[j]);
                 //
                 //        System.out.println(" ) \n");
-                    }
-                    //delete [] dmbr;
+            }
+            //delete [] dmbr;
         }
     }
 
-    public void point_query(PPoint p, SortedLinList res)
-    {
-        int i, n,j;
+    public void point_query(PPoint p, SortedLinList res) {
+        int i, n, j;
         float dmbr[];
 
-    //#ifdef ZAEHLER
-    //    page_access++;
-    //#endif
+        //#ifdef ZAEHLER
+        //    page_access++;
+        //#endif
 
         my_tree.page_access++;
-        
+
         n = get_num();
         for (i = 0; i < n; i++)
         // teste alle Rechtecke auf Ueberschneidung
         {
             dmbr = data[i].get_mbr();
-            if (Constants.inside(p.data, dmbr, dimension))
-            {
+            if (Constants.inside(p.data, dmbr, dimension)) {
                 res.insert(data[i]);
             }
         }
     }
-    
-    public void rangeQuery(float mbr[], SortedLinList res)
-    {
-        int i, n,j;
+
+    public void rangeQuery(float mbr[], SortedLinList res) {
+        int i, n, j;
         float dmbr[];
         Data rect;
         PPoint center;
 
-    //#ifdef ZAEHLER
-    //    page_access += my_tree.node_weight[0];
-    //#endif
+        //#ifdef ZAEHLER
+        //    page_access += my_tree.node_weight[0];
+        //#endif
 
         my_tree.page_access++;
-        
+
         n = get_num();
         for (i = 0; i < n; i++)
         // teste alle Rechtecke auf Ueberschneidung
         {
             dmbr = data[i].get_mbr();
-            if (Constants.section(dimension, dmbr, mbr))
-            {
+            if (Constants.section(dimension, dmbr, mbr)) {
                 // Center des MBRs ausrechnen
                 //center = new Data(dimension);
                 //for(i = 0; i < dimension; i++)
@@ -381,25 +361,23 @@ public final class RTDataNode extends RTNode implements Node
         }
     }
 
-    
-    public void ringQuery(PPoint center, float radius1, float radius2, SortedLinList res)
-    {
-        int i, n,j,k;
+
+    public void ringQuery(PPoint center, float radius1, float radius2, SortedLinList res) {
+        int i, n, j, k;
         float dmbr[];
 
-    //#ifdef ZAEHLER
-    //    page_access += my_tree.node_weight[0];
-    //#endif
+        //#ifdef ZAEHLER
+        //    page_access += my_tree.node_weight[0];
+        //#endif
 
         my_tree.page_access++;
-        
+
         n = get_num();
         for (i = 0; i < n; i++)
         // teste alle Rechtecke auf Ueberschneidung
         {
             dmbr = data[i].get_mbr();
-            if (Constants.section_ring(dimension, dmbr, center, radius1, radius2))
-            {
+            if (Constants.section_ring(dimension, dmbr, center, radius1, radius2)) {
                 System.out.println("RTDataNode: section ring succeeded");
                 //PPoint point;
                 //point = new PPoint(dimension);
@@ -410,26 +388,24 @@ public final class RTDataNode extends RTNode implements Node
             }
         }
     }
-    
-    public void rangeQuery(PPoint center, float radius, SortedLinList res)
-    {
-        int i, n,j,k;
+
+    public void rangeQuery(PPoint center, float radius, SortedLinList res) {
+        int i, n, j, k;
         float dmbr[];
 
-    //#ifdef ZAEHLER
-    //    page_access += my_tree.node_weight[0];
-    //#endif
+        //#ifdef ZAEHLER
+        //    page_access += my_tree.node_weight[0];
+        //#endif
 
         my_tree.page_access++;
-        
+
         n = get_num();
         for (i = 0; i < n; i++)
         // teste alle Rechtecke auf Ueberschneidung
         {
             dmbr = data[i].get_mbr();
-            if (Constants.section_c(dimension, dmbr, center,radius))
-            {
-             //   System.out.println("RTDataNode: section succeeded");
+            if (Constants.section_c(dimension, dmbr, center, radius)) {
+                //   System.out.println("RTDataNode: section succeeded");
                 //PPoint point;
                 //point = new PPoint(dimension);
                 //for( j = 0; j < dimension; j++)
@@ -442,128 +418,114 @@ public final class RTDataNode extends RTNode implements Node
 
 
     public void NearestNeighborSearch(PPoint QueryPoint, PPoint Nearest,
-                float nearest_distanz)
-    {
-        int i,j;
-        float nearest_dist,distanz;
+                                      float nearest_distanz) {
+        int i, j;
+        float nearest_dist, distanz;
 
         //nearest_dist = objectDIST(QueryPoint,Nearest);
 
-    //#ifdef ZAEHLER
-    //    page_access += my_tree.node_weight[0];
-    //#endif
+        //#ifdef ZAEHLER
+        //    page_access += my_tree.node_weight[0];
+        //#endif
 
-        for(i = 0; i < get_num(); i++)
-        {
+        for (i = 0; i < get_num(); i++) {
             //distanz = Constants.objectDIST(QueryPoint,get(i));
-            distanz = Constants.MINDIST(QueryPoint,get(i).get_mbr());
+            distanz = Constants.MINDIST(QueryPoint, get(i).get_mbr());
 
-            if (distanz <= nearest_distanz)
-            {
+            if (distanz <= nearest_distanz) {
                 nearest_distanz = distanz;
                 Nearest.distanz = distanz;
-                for(j = 0; j < 2*dimension; j++)
+                for (j = 0; j < 2 * dimension; j++)
                     Nearest.data[j] = get(i).data[j];
             }
         }
     }
 
     public void NearestNeighborSearch(PPoint QueryPoint,
-                SortedLinList res,
-                float nearest_distanz)
-    {
-        int i,j,k;
-        float nearest_dist,distanz;
+                                      SortedLinList res,
+                                      float nearest_distanz) {
+        int i, j, k;
+        float nearest_dist, distanz;
         boolean t;
-        Data neu,dummy,element;
+        Data neu, dummy, element;
 
-    //#ifdef ZAEHLER
-    //    page_access += my_tree.node_weight[0];
-    //#endif
+        //#ifdef ZAEHLER
+        //    page_access += my_tree.node_weight[0];
+        //#endif
 
         k = res.get_num();
 
-        for (i = 0; i < get_num(); i++)
-        {
+        for (i = 0; i < get_num(); i++) {
             element = get(i);
             //distanz = Constants.objectDIST(QueryPoint,element);
-            distanz = Constants.MINDIST(QueryPoint,element.get_mbr());
+            distanz = Constants.MINDIST(QueryPoint, element.get_mbr());
 
 
-            if (distanz <= nearest_distanz)
-            {
+            if (distanz <= nearest_distanz) {
                 // l"osche letztes Elemente der res-Liste
-                dummy = (Data)res.get(k-1);
+                dummy = (Data) res.get(k - 1);
                 t = res.erase();
 
                 // Erzeuge neuen Punkt in der res-Liste
                 element.distanz = distanz;
                 res.insert(element);
 
-                nearest_distanz = ((Data)res.get(k-1)).distanz;
+                nearest_distanz = ((Data) res.get(k - 1)).distanz;
             }
         }
     }
 
-    public void range_nnQuery(float mbr[],SortedLinList res,
-                    PPoint center, float nearest_distanz,
-                    PPoint Nearest, boolean success)
+    public void range_nnQuery(float mbr[], SortedLinList res,
+                              PPoint center, float nearest_distanz,
+                              PPoint Nearest, boolean success)
 
     {
-        int i,j,n;
-        float nearest_dist,distanz,dmbr[];
+        int i, j, n;
+        float nearest_dist, distanz, dmbr[];
         PPoint point;
 
-        if (success)
-        {
-            rangeQuery(mbr,res);
+        if (success) {
+            rangeQuery(mbr, res);
             return;
         }
 
-    //#ifdef ZAEHLER
-    //    page_access += my_tree.node_weight[0];
-    //#endif
+        //#ifdef ZAEHLER
+        //    page_access += my_tree.node_weight[0];
+        //#endif
 
         n = get_num();
         for (i = 0; i < n; i++)
         // teste alle Rechtecke auf Ueberschneidung
         {
             dmbr = data[i].get_mbr();
-            if (Constants.section(dimension, dmbr, mbr))
-            {
+            if (Constants.section(dimension, dmbr, mbr)) {
                 point = new PPoint(dimension);
-                for( j = 0; j < dimension; j++)
-                    point.data[j] = dmbr[2*j];
-                point.distanz = Constants.objectDIST(point,center);
+                for (j = 0; j < dimension; j++)
+                    point.data[j] = dmbr[2 * j];
+                point.distanz = Constants.objectDIST(point, center);
                 res.insert(point);
                 success = true;
             }
         }
 
-        if (!success)
-        {
-            for(i = 0; i < get_num(); i++)
-            {
+        if (!success) {
+            for (i = 0; i < get_num(); i++) {
                 //distanz = Constants.objectDIST(center,get(i));
-                distanz = Constants.MINDIST(center,get(i).get_mbr());
-                
-                if (distanz <= nearest_distanz)
-                {
+                distanz = Constants.MINDIST(center, get(i).get_mbr());
+
+                if (distanz <= nearest_distanz) {
                     nearest_distanz = distanz;
-                    for(j = 0; j < dimension; j++)
-                    Nearest.data[j] = get(i).data[j];
+                    for (j = 0; j < dimension; j++)
+                        Nearest.data[j] = get(i).data[j];
                 }
             }
         }
     }
 
 
-  
-    
-    public void delete()
-    {
+    public void delete() {
 
     }
-    
+
 
 }

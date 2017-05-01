@@ -1,37 +1,28 @@
 package Rstar;
 
-class BranchList implements Sortable
-{
+class BranchList implements Sortable {
     boolean section;
     float mindist;
     float minmaxdist;
     int entry_number;
-    
-    private float compute_erg(Sortable s, int sortCriterion)
-    {
-    	float erg = (float)0.0;
-        switch(sortCriterion)
-        {
+
+    private float compute_erg(Sortable s, int sortCriterion) {
+        float erg = (float) 0.0;
+        switch (sortCriterion) {
             case Constants.SORT_MINDIST:
-            erg = this.mindist - ((BranchList)s).mindist;
-            break;
+                erg = this.mindist - ((BranchList) s).mindist;
+                break;
         }
         return erg;
     }
-		    
-    public boolean lessThan(Sortable s, int sortCriterion)
-    {
+
+    public boolean lessThan(Sortable s, int sortCriterion) {
         float erg = compute_erg(s, sortCriterion);
-        if (erg < (float)0.0)
-	    return true;
-	return false;
+        return erg < (float) 0.0;
     }
-                
-    public boolean greaterThan(Sortable s, int sortCriterion)
-    {
+
+    public boolean greaterThan(Sortable s, int sortCriterion) {
         float erg = compute_erg(s, sortCriterion);
-        if (erg > (float)0.0)
-            return true;
-        return false;
+        return erg > (float) 0.0;
     }
 }

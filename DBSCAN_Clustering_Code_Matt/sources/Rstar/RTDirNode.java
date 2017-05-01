@@ -4,29 +4,24 @@
 ////////////////////////////////////////////////////////////////////////
 
 /**
-* RDirNode implements directory (intermediate) nodes in the R*-tree
-
-* the block of the RTDirNode is organised as follows:
-* +--------+-------------+-------------+-----+----------------------+
-* | header | DirEntry[0] | DirEntry[1] | ... | DirEntry[capacity-1] |
-* +--------+-------------+-------------+-----+----------------------+
-
-* the header of the RTDirNode is organised as follows:
-* +-------------+-------+-------------+
-* | son_is_data | level | num_entries |
-* +-------------+-------+-------------+
-*/
+ * RDirNode implements directory (intermediate) nodes in the R*-tree
+ * <p>
+ * the block of the RTDirNode is organised as follows:
+ * +--------+-------------+-------------+-----+----------------------+
+ * | header | DirEntry[0] | DirEntry[1] | ... | DirEntry[capacity-1] |
+ * +--------+-------------+-------------+-----+----------------------+
+ * <p>
+ * the header of the RTDirNode is organised as follows:
+ * +-------------+-------+-------------+
+ * | son_is_data | level | num_entries |
+ * +-------------+-------+-------------+
+ */
 
 package Rstar;
-import java.io.*;
 
-public final class RTDirNode extends RTNode implements Node
-{
-	public DirEntry entries[];            // array of entries in the directory
+public final class RTDirNode extends RTNode implements Node {
+    public DirEntry entries[];            // array of entries in the directory
     public boolean son_is_data;           // true, if son is a data page
-
-    public boolean is_data_node()
-    {return false;}                       // this is a directory node
 
     public RTDirNode(RTree rt)
     // create a brand new directory node
@@ -38,12 +33,12 @@ public final class RTDirNode extends RTNode implements Node
         DirEntry d;
 
         // mal kurz einen Dateneintrag erzeugen und schauen, wie gross der wird..
-        d = new DirEntry (dimension, son_is_data, rt);
-    
+        d = new DirEntry(dimension, son_is_data, rt);
+
         // von der Blocklaenge geht die Headergroesse ab
         header_size = Constants.SIZEOF_BOOLEAN   //son_is_data
-                        + Constants.SIZEOF_SHORT //level
-                        + Constants.SIZEOF_INT;  //num_entries
+                + Constants.SIZEOF_SHORT //level
+                + Constants.SIZEOF_INT;  //num_entries
         capacity = 6;
 //        capacity = (rt.file.get_blocklength() - header_size) / d.get_size();
 //        System.out.println("RTDirNode created. Id: " + rt.num_of_inodes);
@@ -57,26 +52,27 @@ public final class RTDirNode extends RTNode implements Node
         entries = new DirEntry[capacity];
 
 
-        rt.num_of_inodes ++;
+        rt.num_of_inodes++;
 
         // If removed from memory, this node has to be written back to disk
         // Plattenblock muss auf jeden Fall neu geschrieben werden
         dirty = true;
     }
 
+    public boolean is_data_node() {
+        return false;
+    }                       // this is a directory node
 
     // prints the mbrs of all directory entries in this node
-    public void print()
-    {
+    public void print() {
         int i, n;
 
         n = get_num();
-        for (i = 0; i < n ; i++)
-        {
+        for (i = 0; i < n; i++) {
             System.out.println(entries[i].bounces[0]
-                                + " " + entries[i].bounces[1]
-                                + " " + entries[i].bounces[2]
-                                + " " + entries[i].bounces[3]);
+                    + " " + entries[i].bounces[1]
+                    + " " + entries[i].bounces[2]
+                    + " " + entries[i].bounces[3]);
         }
         System.out.println("level: " + level);
     }
@@ -84,13 +80,12 @@ public final class RTDirNode extends RTNode implements Node
     /*
     * recursive call to compute the # of data in the tree
     */
-    public int get_num_of_data()
-    {
+    public int get_num_of_data() {
         int i, n, sum;
 
         n = get_num();
         sum = 0;
-        for (i = 0; i < n ; i++)
+        for (i = 0; i < n; i++)
             sum += entries[i].num_of_data;
         return sum;
     }
@@ -98,22 +93,19 @@ public final class RTDirNode extends RTNode implements Node
     /*
     * returns the mbr of all entries in the directory
     */
-    public float[] get_mbr()
-    {
+    public float[] get_mbr() {
         int i, j, n;
         float mbr[];
 
-        mbr = new float[2*dimension];
-        for (i = 0; i < 2*dimension; i ++ )
+        mbr = new float[2 * dimension];
+        for (i = 0; i < 2 * dimension; i++)
             mbr[i] = entries[0].bounces[i];
 
         n = get_num();
-        for (j = 1; j < n; j++)
-        {
-            for (i = 0; i < 2*dimension; i += 2)
-            {
-                mbr[i]   = Constants.min(mbr[i],   entries[j].bounces[i]);
-                mbr[i+1] = Constants.max(mbr[i+1], entries[j].bounces[i+1]);
+        for (j = 1; j < n; j++) {
+            for (i = 0; i < 2 * dimension; i += 2) {
+                mbr[i] = Constants.min(mbr[i], entries[j].bounces[i]);
+                mbr[i + 1] = Constants.max(mbr[i + 1], entries[j].bounces[i + 1]);
             }
         }
         return mbr;
@@ -123,17 +115,16 @@ public final class RTDirNode extends RTNode implements Node
     * insert an entry into the node
     * it should be called only for not full nodes
     */
-    public void enter(DirEntry de)
-    {
+    public void enter(DirEntry de) {
         // ist ein Einfuegen ueberhaupt moeglich?
-        if (get_num() > (capacity-1))
+        if (get_num() > (capacity - 1))
             Constants.error("RTDirNode.enter: called, but node is full", true);
 
         // Eintrag an erste freie Stelle kopieren
         entries[num_entries] = de;
 
         // jetzt gibts einen mehr
-        num_entries++; 
+        num_entries++;
     }
 
     /*
@@ -150,40 +141,38 @@ public final class RTDirNode extends RTNode implements Node
         float mbr_array[][];                     // array of the mbrs of all entries
         DirEntry new_entries1[], new_entries2[]; // the new directory entries that will hold the split parts
 
-    //#ifdef SHOWMBR
-    //    split_000++;
-    //#endif
+        //#ifdef SHOWMBR
+        //    split_000++;
+        //#endif
 
         // wieviele sind denn nun belegt?
         n = get_num(); // n = number of directory entries
         distribution = new int[1][];
 
         // mbr_array holds the mbrs of all entries
-        mbr_array = new float[n][dimension*2];
+        mbr_array = new float[n][dimension * 2];
         for (i = 0; i < n; i++)
-               mbr_array[i] = entries[i].bounces;
+            mbr_array[i] = entries[i].bounces;
 
         // call super.split() to initialize distribution[0], dist
         dist = super.split(mbr_array, distribution);
-        
+
         // neues Datenarray erzeugen
         // -. siehe Konstruktor
         //RTDirNode__dimension = dimension;
         //RTDirNode__my_tree = my_tree;
-        
+
         //initialize the new entries that will hold the split parts
         new_entries1 = new DirEntry[capacity];
         new_entries2 = new DirEntry[capacity];
 
         // fill the new entries with the split parts
-        for (i = 0; i < dist; i++)
-        {
+        for (i = 0; i < dist; i++) {
             new_entries1[i] = entries[distribution[0][i]];
         }
 
-        for (i = dist; i < n; i++)
-        {
-            new_entries2[i-dist] = entries[distribution[0][i]];
+        for (i = dist; i < n; i++) {
+            new_entries2[i - dist] = entries[distribution[0][i]];
         }
 
         // Datenarrays freigeben
@@ -205,26 +194,25 @@ public final class RTDirNode extends RTNode implements Node
     }
 
     /**
-    * chooses the best subtree under this node to insert a new mbr
-    * There are three cases:
-    * Case 1: the new mbr is contained (inside) in only one directory entry mbr.
-    * In this case follow this subtree.
-    * Case 2: the new mbr is contained (inside) in more than one directory entry mbr.
-    * In this case follow the entry whose mbr has the minimum area
-    * Case 3: the new mbr is not contained (inside) in any directory entry mbr
-    * In this case the criteria are the following:
-    * - If the son nodes are data nodes consider as criterion first the minimum overlap
-    *   increase if we follow one node with its neighbors, then the minimum area enlargement
-    *   and finally the minimum area
-    * - In the son nodes are dir nodes consider as criterion first the minimum area enlargement
-    *   and finally the minimum area
-    * After we choose the subtree, we enlarge the directory entry (if has to be enlarged)
-    * and return its index
-    */
-    public int choose_subtree(float mbr[])
-    {
-        int i, j, n, follow, minindex=0, inside[], inside_count, over[];
-        float bmbr[] = new float[2*dimension];
+     * chooses the best subtree under this node to insert a new mbr
+     * There are three cases:
+     * Case 1: the new mbr is contained (inside) in only one directory entry mbr.
+     * In this case follow this subtree.
+     * Case 2: the new mbr is contained (inside) in more than one directory entry mbr.
+     * In this case follow the entry whose mbr has the minimum area
+     * Case 3: the new mbr is not contained (inside) in any directory entry mbr
+     * In this case the criteria are the following:
+     * - If the son nodes are data nodes consider as criterion first the minimum overlap
+     *   increase if we follow one node with its neighbors, then the minimum area enlargement
+     *   and finally the minimum area
+     * - In the son nodes are dir nodes consider as criterion first the minimum area enlargement
+     *   and finally the minimum area
+     * After we choose the subtree, we enlarge the directory entry (if has to be enlarged)
+     * and return its index
+     */
+    public int choose_subtree(float mbr[]) {
+        int i, j, n, follow, minindex = 0, inside[], inside_count, over[];
+        float bmbr[] = new float[2 * dimension];
         float old_o, o, omin, a, amin, f, fmin;
 
         n = get_num();
@@ -234,10 +222,8 @@ public final class RTDirNode extends RTNode implements Node
         inside = new int[n]; // this array holds the indices of entries whose mbr contains the new mbr to be inserted
 
         // calculate inside[]
-        for (i = 0; i < n; i++)
-        {
-            switch (entries[i].section(mbr))
-            {
+        for (i = 0; i < n; i++) {
+            switch (entries[i].section(mbr)) {
                 case Constants.INSIDE:
                     // mbr is inside entries[i] mbr
                     inside[inside_count++] = i;
@@ -246,7 +232,7 @@ public final class RTDirNode extends RTNode implements Node
         }
 
         if (inside_count == 1)
-        // Case 1: There is exactly one dir_mbr that contains mbr
+            // Case 1: There is exactly one dir_mbr that contains mbr
             follow = inside[0];
         else if (inside_count > 1)
         // Case 2: There are many dir_mbrs that contain mbr
@@ -255,23 +241,20 @@ public final class RTDirNode extends RTNode implements Node
             fmin = Constants.MAXREAL;
             //printf("Punkt in %d von %d MBRs \n",inside_count,n);
 
-            for (i = 0; i < inside_count; i++)
-            {
+            for (i = 0; i < inside_count; i++) {
                 f = Constants.area(dimension, entries[inside[i]].bounces);
-                if (f < fmin)
-                {
+                if (f < fmin) {
                     minindex = i;
                     fmin = f;
                 }
             }
 
             follow = inside[minindex];
-        }
-        else
+        } else
         // Case 3: There are no dir_mbrs that contain mbr
         // choose the one for which insertion causes the minimun overlap if son_is_data
         // else choose the one for which insertion causes the minimun area enlargement
-        
+
         // Case 3: Rechteck faellt in keinen Eintrag -.
         // fuer Knoten, die auf interne Knoten zeigen:
         // nimm den Eintrag, der am geringsten vergroessert wird;
@@ -285,13 +268,11 @@ public final class RTDirNode extends RTNode implements Node
         // bei gleicher Vergroesserung:
         // nimm den Eintrag, der die geringste Flaeche hat
         {
-            if (son_is_data)
-            {
+            if (son_is_data) {
                 omin = Constants.MAXREAL;
                 fmin = Constants.MAXREAL;
                 amin = Constants.MAXREAL;
-                for (i = 0; i < n; i++)
-                {
+                for (i = 0; i < n; i++) {
                     // compute the MBR of mbr and entries[i]
 
                     Constants.enlarge(dimension, bmbr, mbr, entries[i].bounces);
@@ -301,27 +282,24 @@ public final class RTDirNode extends RTNode implements Node
                     f = Constants.area(dimension, bmbr) - a;
 
                     // calculate overlap before enlarging entry_i
-                    old_o = o = (float)0.0;
+                    old_o = o = (float) 0.0;
 
-                    for (j = 0; j < n; j++)
-                    {
-                        if (j != i)
-                        {
+                    for (j = 0; j < n; j++) {
+                        if (j != i) {
                             old_o += Constants.overlap(dimension,
-                                 entries[i].bounces,
-                                 entries[j].bounces);
+                                    entries[i].bounces,
+                                    entries[j].bounces);
                             o += Constants.overlap(dimension,
-                                 bmbr,
-                                 entries[j].bounces);
+                                    bmbr,
+                                    entries[j].bounces);
                         }
                     }
                     o -= old_o;
 
                     // is this entry better than the former optimum ?
                     if ((o < omin) ||
-                        (o == omin && f < fmin) ||
-                        (o == omin && f == fmin && a < amin))
-                    {
+                            (o == omin && f < fmin) ||
+                            (o == omin && f == fmin && a < amin)) {
                         minindex = i;
                         omin = o;
                         fmin = f;
@@ -329,13 +307,11 @@ public final class RTDirNode extends RTNode implements Node
                     }
                     //delete [] bmbr;
                 }
-            }
-            else //son is not data
+            } else //son is not data
             {
                 fmin = Constants.MAXREAL;
                 amin = Constants.MAXREAL;
-                for (i = 0; i < n; i++)
-                {
+                for (i = 0; i < n; i++) {
                     // compute the MBR of mbr and entries[i]
                     Constants.enlarge(dimension, bmbr, mbr, entries[i].bounces);
 
@@ -344,8 +320,7 @@ public final class RTDirNode extends RTNode implements Node
                     f = Constants.area(dimension, bmbr) - a;
 
                     // is this entry better than the former optimum ?
-                    if ((f < fmin) || (f == fmin && a < amin))
-                    {
+                    if ((f < fmin) || (f == fmin && a < amin)) {
                         minindex = i;
                         fmin = f;
                         amin = a;
@@ -355,7 +330,7 @@ public final class RTDirNode extends RTNode implements Node
             }
             // enlarge the boundaries of the directoty entry we will follow
             Constants.enlarge(dimension, bmbr, mbr, entries[minindex].bounces);
-            System.arraycopy(bmbr, 0, entries[minindex].bounces, 0, 2*dimension);
+            System.arraycopy(bmbr, 0, entries[minindex].bounces, 0, 2 * dimension);
 
             follow = minindex;
 
@@ -372,34 +347,33 @@ public final class RTDirNode extends RTNode implements Node
     * NOTE: the parameter sn is a reference call to sn[0] which will be
     * a new node after a potential split and NOT an array of nodes
     */
-    public int insert(Data d, RTNode sn[])
-    {
+    public int insert(Data d, RTNode sn[]) {
         int follow;
         RTNode succ = null;
         RTNode new_succ[] = new RTNode[1];
         DirEntry de;
         int ret;
-        float mbr[],nmbr[];
+        float mbr[], nmbr[];
 
         // choose subtree to follow
         mbr = d.get_mbr();
         follow = choose_subtree(mbr);
-        
+
         // get corresponding son
         succ = entries[follow].get_son();
 
         // insert d into son
-        ret = ((Node)succ).insert(d, new_succ);
+        ret = ((Node) succ).insert(d, new_succ);
         if (ret != Constants.NONE)
         // if anything (SPLIT or REINSERT) happend -. update bounces of entry "follow"
         // because these actions change the entries in succ
         {
-            mbr = ((Node)succ).get_mbr();
-            System.arraycopy(mbr, 0, entries[follow].bounces, 0, 2*dimension);
+            mbr = ((Node) succ).get_mbr();
+            System.arraycopy(mbr, 0, entries[follow].bounces, 0, 2 * dimension);
         }
 
         // recalculate # of succeeders in the tree
-        entries[follow].num_of_data = ((Node)succ).get_num_of_data();
+        entries[follow].num_of_data = ((Node) succ).get_num_of_data();
 
         if (ret == Constants.SPLIT)
         // succ was split into succ and new_succ[0]
@@ -410,14 +384,14 @@ public final class RTDirNode extends RTNode implements Node
 
             // create a new entry to hold the new_succ[0] node 
             de = new DirEntry(dimension, son_is_data, my_tree);
-            nmbr = ((Node)new_succ[0]).get_mbr();
+            nmbr = ((Node) new_succ[0]).get_mbr();
 
-            System.arraycopy(nmbr, 0, de.bounces, 0, 2*dimension);
+            System.arraycopy(nmbr, 0, de.bounces, 0, 2 * dimension);
             de.son = new_succ[0].block;
             de.son_ptr = new_succ[0];
             de.son_is_data = son_is_data;
-            de.num_of_data = ((Node)new_succ[0]).get_num_of_data();
-            
+            de.num_of_data = ((Node) new_succ[0]).get_num_of_data();
+
             // insert de to this
             enter(de);
 
@@ -428,14 +402,13 @@ public final class RTDirNode extends RTNode implements Node
             {
                 // initialize brother(split) node
                 sn[0] = new RTDirNode(my_tree);
-                ((RTDirNode)sn[0]).son_is_data = ((RTDirNode)this).son_is_data;
+                ((RTDirNode) sn[0]).son_is_data = this.son_is_data;
                 sn[0].level = level;
                 // split this --> this and sn[0]
-                split((RTDirNode)sn[0]);
-            
+                split((RTDirNode) sn[0]);
+
                 ret = Constants.SPLIT;
-            }
-            else
+            } else
                 ret = Constants.NONE;
         }
         // must write page. set dirty bit
@@ -448,22 +421,20 @@ public final class RTDirNode extends RTNode implements Node
     * search for data with linear index i
     * follow the appropriate subtree
     */
-    public Data get(int i)
-    {
+    public Data get(int i) {
         int j, n, sum;
         RTNode son;
 
         n = get_num();
         sum = 0;
-        for (j = 0; j < n; j++)
-        {
+        for (j = 0; j < n; j++) {
             sum += entries[j].num_of_data;
 
             if (sum > i)
             // i-th object is behind this node -. follow son
             {
                 son = entries[j].get_son();
-                return ((Node)son).get(i - (sum - entries[j].num_of_data));
+                return ((Node) son).get(i - (sum - entries[j].num_of_data));
             }
         }
 
@@ -473,8 +444,7 @@ public final class RTDirNode extends RTNode implements Node
     /*
     * print the mbrs under this node that intersect the query mbr
     */
-    public void region(float mbr[])
-    {
+    public void region(float mbr[]) {
         int i, n;
         int s;
         RTNode succ;
@@ -484,11 +454,10 @@ public final class RTDirNode extends RTNode implements Node
         // teste alle Rechtecke auf Ueberschneidung
         {
             s = entries[i].section(mbr);
-            if (s == Constants.INSIDE || s == Constants.OVERLAP)
-            {
+            if (s == Constants.INSIDE || s == Constants.OVERLAP) {
                 // Rechteck ist interessant -. rekursiv weiter
                 succ = entries[i].get_son();
-                ((Node)succ).region(mbr);
+                ((Node) succ).region(mbr);
             }
         }
     }
@@ -496,8 +465,7 @@ public final class RTDirNode extends RTNode implements Node
     /*
     * print the mbrs under this node that intersect the query point
     */
-    public void point_query(float p[])
-    {
+    public void point_query(float p[]) {
         int i, n;
         RTNode succ;
 
@@ -505,11 +473,10 @@ public final class RTDirNode extends RTNode implements Node
         for (i = 0; i < n; i++)
         // teste alle Rechtecke auf Ueberschneidung
         {
-            if (entries[i].is_inside(p))
-            {
+            if (entries[i].is_inside(p)) {
                 // Rechteck ist interessant -. rekursiv weiter
                 succ = entries[i].get_son();
-                ((Node)succ).point_query(p);
+                ((Node) succ).point_query(p);
             }
         }
     }
@@ -517,108 +484,100 @@ public final class RTDirNode extends RTNode implements Node
     /*
     * store in res the mbrs under this node that intersect the query point
     */
-    public void point_query(PPoint p, SortedLinList res)
-    {
+    public void point_query(PPoint p, SortedLinList res) {
         int i, n;
         RTNode succ;
 
         //page_access += my_tree.node_weight[level];
         my_tree.page_access++;
-        
+
         n = get_num();
         for (i = 0; i < n; i++)
         // teste alle Rechtecke auf Ueberschneidung
         {
-            if (entries[i].is_inside(p.data))
-            {
+            if (entries[i].is_inside(p.data)) {
                 // Rechteck ist interessant -. rekursiv weiter
                 succ = entries[i].get_son();
-                ((Node)succ).point_query(p, res);
+                ((Node) succ).point_query(p, res);
             }
         }
     }
-    
+
     /*
     * store in res the mbrs under this node that intersect the query mbr
     */
-    public void rangeQuery(float mbr[], SortedLinList res)
-    {
+    public void rangeQuery(float mbr[], SortedLinList res) {
         int i, n;
         int s;
         RTNode succ;
 
         //page_access += my_tree.node_weight[level];
         my_tree.page_access++;
-        
+
         n = get_num();
         for (i = 0; i < n; i++)
         // teste alle Rechtecke auf Ueberschneidung
         {
             s = entries[i].section(mbr);
-            if (s == Constants.INSIDE || s == Constants.OVERLAP)
-            {
+            if (s == Constants.INSIDE || s == Constants.OVERLAP) {
                 // Rechteck ist interessant -. rekursiv weiter
                 succ = entries[i].get_son();
-                ((Node)succ).rangeQuery(mbr,res);
+                ((Node) succ).rangeQuery(mbr, res);
             }
         }
     }
-    
+
     /*
     * store in res the mbrs under this node that intersect the query circle
     */
     public void rangeQuery(PPoint center, float radius,
-            SortedLinList res)
-    {
+                           SortedLinList res) {
         int i, n;
         boolean s;
         RTNode succ;
 
-      //  #ifdef ZAEHLER
+        //  #ifdef ZAEHLER
         //page_access += my_tree.node_weight[level];
-      //  #endif
+        //  #endif
 
         my_tree.page_access++;
-        
+
         n = get_num();
         for (i = 0; i < n; i++)
         // test if the circle intersects the MBR of the entries one by one
         {
-            s = entries[i].section_circle(center,radius);
-            if (s)
-            {
+            s = entries[i].section_circle(center, radius);
+            if (s) {
                 // if c intersects mbr of entry i, follow that node
                 succ = entries[i].get_son();
-                ((Node)succ).rangeQuery(center,radius,res);
+                ((Node) succ).rangeQuery(center, radius, res);
             }
         }
     }
-    
+
     /*
     * store in res the mbrs under this node that intersect the query ring
     */
-    public void ringQuery(PPoint center, float radius1, float radius2, SortedLinList res)
-    {
+    public void ringQuery(PPoint center, float radius1, float radius2, SortedLinList res) {
         int i, n;
         boolean s;
         RTNode succ;
 
-      //  #ifdef ZAEHLER
+        //  #ifdef ZAEHLER
         //page_access += my_tree.node_weight[level];
-      //  #endif
+        //  #endif
 
         my_tree.page_access++;
-        
+
         n = get_num();
         for (i = 0; i < n; i++)
         // test if the circle intersects the MBR of the entries one by one
         {
-            s = entries[i].section_ring(center,radius1,radius2);
-            if (s)
-            {
+            s = entries[i].section_ring(center, radius1, radius2);
+            if (s) {
                 // if c intersects mbr of entry i, follow that node
                 succ = entries[i].get_son();
-                ((Node)succ).ringQuery(center,radius1,radius2,res);
+                ((Node) succ).ringQuery(center, radius1, radius2, res);
             }
         }
     }
@@ -665,94 +624,88 @@ public final class RTDirNode extends RTNode implements Node
     /*
     * store in Nearest the mbr under this node nearest to the query point
     */
-    public void NearestNeighborSearch(PPoint QueryPoint, PPoint Nearest, float/*[]*/ nearest_distanz)
-    {
+    public void NearestNeighborSearch(PPoint QueryPoint, PPoint Nearest, float/*[]*/ nearest_distanz) {
         float minmax_distanz;        // Array fuer MINMAXDIST aller Eintr"age
         int indexliste;        // Liste (for Sorting and Prunching)
-        int i,j,k,last,n;
+        int i, j, k, last, n;
         float akt_min_dist;        // minimal distanz computed upto now
-        float minmaxdist,mindist;
+        float minmaxdist, mindist;
 
         BranchList activebranchList[];
 
-    //#ifdef ZAEHLER
-    //    page_access += my_tree.node_weight[level];
-    //#endif
+        //#ifdef ZAEHLER
+        //    page_access += my_tree.node_weight[level];
+        //#endif
 
         n = get_num();
 
-        activebranchList = new BranchList [n]; // Array erzeugen mit n Elementen
+        activebranchList = new BranchList[n]; // Array erzeugen mit n Elementen
 
-        for( i = 0; i < n; i++)
-        {
+        for (i = 0; i < n; i++) {
             activebranchList[i].entry_number = i;
-            activebranchList[i].minmaxdist = Constants.MINMAXDIST(QueryPoint,entries[i].bounces);
-            activebranchList[i].mindist = Constants.MINDIST(QueryPoint,entries[i].bounces);
+            activebranchList[i].minmaxdist = Constants.MINMAXDIST(QueryPoint, entries[i].bounces);
+            activebranchList[i].mindist = Constants.MINDIST(QueryPoint, entries[i].bounces);
         }
 
         // sort branchList
-        Constants.quickSort(activebranchList,0 ,activebranchList.length - 1, Constants.SORT_MINDIST);
+        Constants.quickSort(activebranchList, 0, activebranchList.length - 1, Constants.SORT_MINDIST);
 
         // prune BranchList
-        last = Constants.pruneBranchList(nearest_distanz,activebranchList,n);
+        last = Constants.pruneBranchList(nearest_distanz, activebranchList, n);
 
-        for( i = 0; i < last; i++)
-        {
-            ((Node)entries[activebranchList[i].entry_number].get_son()).NearestNeighborSearch(QueryPoint, Nearest, nearest_distanz);
+        for (i = 0; i < last; i++) {
+            ((Node) entries[activebranchList[i].entry_number].get_son()).NearestNeighborSearch(QueryPoint, Nearest, nearest_distanz);
 
-            last = Constants.pruneBranchList(nearest_distanz,activebranchList,last);
+            last = Constants.pruneBranchList(nearest_distanz, activebranchList, last);
         }
 
         //delete [] activebranchList;
     }
 
-  /*
-    * store in res the mbrs under this node nearest to the query point
-    */
+    /*
+      * store in res the mbrs under this node nearest to the query point
+      */
     public void NearestNeighborSearch(PPoint QueryPoint,
-                    SortedLinList res,
-                    float nearest_distanz/*[]*/)
-    {
+                                      SortedLinList res,
+                                      float nearest_distanz/*[]*/) {
         float minmax_distanz;        // Array fuer MINMAXDIST aller Eintr"age
         int indexliste;        // Liste (for Sorting and Prunching)
-        int i,j,k,last,n;
+        int i, j, k, last, n;
         float akt_min_dist;        // minimal distanz computed upto now
-        float minmaxdist,mindist;
+        float minmaxdist, mindist;
 
         BranchList activebranchList[];
 
-    //#ifdef ZAEHLER
-    //    page_access += my_tree.node_weight[level];
-    //#endif
+        //#ifdef ZAEHLER
+        //    page_access += my_tree.node_weight[level];
+        //#endif
 
         n = get_num();
 
         k = res.get_num();     // wird haben eine k-nearest-Narbor-Query
 
-        nearest_distanz/*[0]*/ = ((Data)res.get(k-1)).distanz;  // der aktuell letzte
-                                                    // n"achste Nachbar wird
-                                                    // versucht zu ersetzen.
+        nearest_distanz/*[0]*/ = ((Data) res.get(k - 1)).distanz;  // der aktuell letzte
+        // n"achste Nachbar wird
+        // versucht zu ersetzen.
 
-        activebranchList = new BranchList [n]; // Array erzeugen mit n Elementen
+        activebranchList = new BranchList[n]; // Array erzeugen mit n Elementen
 
-        for( i = 0; i < n; i++)
-        {
-                    activebranchList[i].entry_number = i;
-                    activebranchList[i].minmaxdist = Constants.MINMAXDIST(QueryPoint,entries[i].bounces);
-                    activebranchList[i].mindist = Constants.MINDIST(QueryPoint,entries[i].bounces);
+        for (i = 0; i < n; i++) {
+            activebranchList[i].entry_number = i;
+            activebranchList[i].minmaxdist = Constants.MINMAXDIST(QueryPoint, entries[i].bounces);
+            activebranchList[i].mindist = Constants.MINDIST(QueryPoint, entries[i].bounces);
         }
 
         // sortbranchList
-        Constants.quickSort(activebranchList,0 ,activebranchList.length - 1, Constants.SORT_MINDIST);
+        Constants.quickSort(activebranchList, 0, activebranchList.length - 1, Constants.SORT_MINDIST);
 
         // pruneBranchList
-        last = Constants.pruneBranchList(nearest_distanz,activebranchList,n);
+        last = Constants.pruneBranchList(nearest_distanz, activebranchList, n);
 
-        for( i = 0; i < last; i++)
-        {
-                ((Node)entries[activebranchList[i].entry_number].get_son()).NearestNeighborSearch(QueryPoint, res, nearest_distanz);
+        for (i = 0; i < last; i++) {
+            ((Node) entries[activebranchList[i].entry_number].get_son()).NearestNeighborSearch(QueryPoint, res, nearest_distanz);
 
-                last = Constants.pruneBranchList(nearest_distanz,activebranchList,last);
+            last = Constants.pruneBranchList(nearest_distanz, activebranchList, last);
         }
 
         //delete [] activebranchList;
@@ -763,33 +716,30 @@ public final class RTDirNode extends RTNode implements Node
     * parameters
     */
     public void range_nnQuery(float mbr[], SortedLinList res,
-                    PPoint center, float nearest_distanz,
-                    PPoint Nearest, boolean success)
-    {
+                              PPoint center, float nearest_distanz,
+                              PPoint Nearest, boolean success) {
         float minmax_distanz;        // Array fuer MINMAXDIST aller Eintr"age
         int indexliste;        // Liste (for Sorting and Prunching)
-        int i,j,k,last,n;
+        int i, j, k, last, n;
         float akt_min_dist;        // minimal distanz computed upto now
-        float minmaxdist,mindist;
+        float minmaxdist, mindist;
         int s;
 
         BranchList activebranchList[], sectionList[];
 
-        if (success)
-        {
-                rangeQuery(mbr,res);
-                 return;
+        if (success) {
+            rangeQuery(mbr, res);
+            return;
         }
 
-    //#ifdef ZAEHLER
-    //    page_access += my_tree.node_weight[level];
-    //#endif
-
+        //#ifdef ZAEHLER
+        //    page_access += my_tree.node_weight[level];
+        //#endif
 
 
         n = get_num();
 
-        sectionList = new BranchList [n];
+        sectionList = new BranchList[n];
 
         // Erst einmal feststellen, welche der Eintr"age einen Schnitt mit dem
         // aktuellen mbr haben und Ergebnis in sectionList speichern
@@ -798,49 +748,43 @@ public final class RTDirNode extends RTNode implements Node
         // teste alle Rechtecke auf Ueberschneidung
         {
             s = entries[i].section(mbr);
-                    sectionList[i].entry_number = i;
-            if (s == Constants.INSIDE || s == Constants.OVERLAP)
-                        sectionList[i].section  = true;
-                    else
-                        sectionList[i].section  = false;
+            sectionList[i].entry_number = i;
+            sectionList[i].section = s == Constants.INSIDE || s == Constants.OVERLAP;
         }
 
 
-        activebranchList = new BranchList [n]; // Array erzeugen mit n Elementen
+        activebranchList = new BranchList[n]; // Array erzeugen mit n Elementen
 
-        for( i = 0; i < n; i++)
-        {
-                activebranchList[i].entry_number = i;
-                activebranchList[i].minmaxdist = Constants.MINMAXDIST(center,entries[i].bounces);
-                activebranchList[i].mindist = Constants.MINDIST(center,entries[i].bounces);
+        for (i = 0; i < n; i++) {
+            activebranchList[i].entry_number = i;
+            activebranchList[i].minmaxdist = Constants.MINMAXDIST(center, entries[i].bounces);
+            activebranchList[i].mindist = Constants.MINDIST(center, entries[i].bounces);
         }
 
         // sortbranchList
         //qsort(activebranchList,n,sizeof(BranchList),sortmindist);
 
         // pruneBranchList
-        last = Constants.pruneBranchList(nearest_distanz,activebranchList,n);
+        last = Constants.pruneBranchList(nearest_distanz, activebranchList, n);
 
         // jetzt nachsehen, ob auch Schnittmenge mit mbr abgeschnitten wurde:
         // falls ja: Schnitt wieder R"ueckg"angig machen
 
-        last = Constants.testBranchList(activebranchList,sectionList,n,last);
+        last = Constants.testBranchList(activebranchList, sectionList, n, last);
 
-        for( i = 0; i < last; i++)
-        {
-                    ((Node)entries[activebranchList[i].entry_number].get_son()).range_nnQuery(mbr,res,center,nearest_distanz,
-                          Nearest,success);
+        for (i = 0; i < last; i++) {
+            ((Node) entries[activebranchList[i].entry_number].get_son()).range_nnQuery(mbr, res, center, nearest_distanz,
+                    Nearest, success);
 
-                    last = Constants.pruneBranchList(nearest_distanz,activebranchList,last);
-            last = Constants.testBranchList(activebranchList,sectionList,n,last);
+            last = Constants.pruneBranchList(nearest_distanz, activebranchList, last);
+            last = Constants.testBranchList(activebranchList, sectionList, n, last);
         }
 
         //delete [] activebranchList;
         //delete [] sectionList;
     }
 
-    public void overlapping(float p[], int nodes_t[])
-    {
+    public void overlapping(float p[], int nodes_t[]) {
         int i, n;
         RTNode succ;
 
@@ -851,18 +795,16 @@ public final class RTDirNode extends RTNode implements Node
         for (i = 0; i < n; i++)
         // teste alle Rechtecke auf Ueberschneidung
         {
-            if (entries[i].is_inside(p))
-            {
+            if (entries[i].is_inside(p)) {
                 // Rechteck ist interessant -. rekursiv weiter
                 succ = entries[i].get_son();
-                ((Node)succ).overlapping(p, nodes_t);
+                ((Node) succ).overlapping(p, nodes_t);
             }
         }
     }
 
     // see RTree.nodes()
-    public void nodes(int nodes_a[])
-    {
+    public void nodes(int nodes_a[]) {
         int i, n;
         RTNode succ;
 
@@ -873,16 +815,14 @@ public final class RTDirNode extends RTNode implements Node
         for (i = 0; i < n; i++)
         // teste alle Rechtecke auf Ueberschneidung
         {
-                    succ = entries[i].get_son();
-                    ((Node)succ).nodes(nodes_a);
+            succ = entries[i].get_son();
+            ((Node) succ).nodes(nodes_a);
         }
     }
-    
-    public void delete()
-    {
-    
-        for (int i=0; i<num_entries; i++)
-        {
+
+    public void delete() {
+
+        for (int i = 0; i < num_entries; i++) {
             entries[i].delete();
         }
     }

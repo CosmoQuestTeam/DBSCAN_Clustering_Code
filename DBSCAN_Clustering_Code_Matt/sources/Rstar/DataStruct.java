@@ -1,11 +1,10 @@
 package Rstar;
-class DataStruct
-{
+
+class DataStruct {
     int dimension;
     float[] Data;
-    
-    DataStruct(int _dimension)
-    {
+
+    DataStruct(int _dimension) {
         dimension = _dimension;
         Data = new float[dimension];
     }

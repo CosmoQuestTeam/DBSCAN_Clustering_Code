@@ -1,12 +1,11 @@
 package Rstar;
 
-public interface Comparable
-{
+public interface Comparable {
     /**
      * Returns:
-     *   =0 means equal
-     *   <0 means strictly less than
-     *   >0 means strictly greater than
+     * =0 means equal
+     * <0 means strictly less than
+     * >0 means strictly greater than
      */
-    public abstract int compare(Object other);
+    int compare(Object other);
 }

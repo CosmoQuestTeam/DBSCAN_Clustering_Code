@@ -1,6 +1,7 @@
 package Rstar;
-public interface Traceable
-{
-    public abstract void    setTraceable(boolean enable);
-    public abstract boolean isTraceable();
+
+public interface Traceable {
+    boolean isTraceable();
+
+    void setTraceable(boolean enable);
 }

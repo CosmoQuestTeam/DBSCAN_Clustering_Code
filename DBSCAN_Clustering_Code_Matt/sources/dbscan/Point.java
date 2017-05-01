@@ -5,8 +5,7 @@
 /*********************************************************************************/
 package dbscan;
 
-public class Point 
-{
+public class Point {
     /*************************************************/
     /* Declaration/Initialization of class variables */
     /*************************************************/
@@ -14,47 +13,47 @@ public class Point
     private Float d;
     private Float x;
     private Float y;
-    
+
     /*********************/
     /* Point Constructor */
+
     /*********************/
-    Point(Float x, Float y, Float d, Float c)
-    {
-	this.x = x;
-	this.y = y;
-	this.d = d;
-	this.c = c;
+    Point(Float x, Float y, Float d, Float c) {
+        this.x = x;
+        this.y = y;
+        this.d = d;
+        this.c = c;
     }
 
     /***********************************/
     /* Function that gets x coordinate */
+
     /***********************************/
-    public Float getX ()
-    {
-	return x;
+    public Float getX() {
+        return x;
     }
-    
+
     /***********************************/
     /* Function that gets y coordinate */
+
     /***********************************/
-    public Float getY () 
-    {
+    public Float getY() {
         return y;
     }
-	
+
     /***********************************/
     /* Function that gets d coordinate */
+
     /***********************************/
-    public Float getD ()
-    {
-	return d;
+    public Float getD() {
+        return d;
     }
-    
+
     /***********************************/
     /* Function that gets c coordinate */
+
     /***********************************/
-    public Float getC()
-    {
-	return c;
+    public Float getC() {
+        return c;
     }
 }

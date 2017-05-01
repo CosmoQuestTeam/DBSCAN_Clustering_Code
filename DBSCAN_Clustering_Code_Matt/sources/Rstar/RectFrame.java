@@ -6,18 +6,17 @@ package Rstar;
 /**************************/
 /* Built-in java packages */
 /**************************/
+
 import java.awt.*;
 
 @SuppressWarnings("deprecation")
-public class RectFrame extends Frame
-{
+public class RectFrame extends Frame {
     RFramedArea framedArea;
     Label label;
     Object controller;
     private TreeCreation t;
 
-    RectFrame(Object controller)
-    {
+    RectFrame(Object controller) {
         t = (TreeCreation) controller;
 
         setTitle("The R* Tree Created");
@@ -72,14 +71,14 @@ public class RectFrame extends Frame
         validate();
     }
 
-    public boolean handleEvent (Event e) {
+    public boolean handleEvent(Event e) {
         if (e.id == Event.WINDOW_DESTROY && e.target == this)
             t.exit(0);
         return super.handleEvent(e);
     }
-    
-    public boolean action (Event e, Object o) {
-    // Handle user selection of menu items.
+
+    public boolean action(Event e, Object o) {
+        // Handle user selection of menu items.
         if (e.target instanceof MenuItem) {
             if (o.equals("Exit"))
                 t.exit(0);
@@ -107,26 +106,25 @@ public class RectFrame extends Frame
                 showQueryDlg(Constants.CIRCLEQUERY);
             else if (o.equals("Ring query"))
                 showQueryDlg(Constants.RINGQUERY);
-        }
-        else
+        } else
             return super.action(e, o);
         return true;
     }
 
-    private void redrawRect (int level) {
-    // redraw the canvas if display level is changed.
+    private void redrawRect(int level) {
+        // redraw the canvas if display level is changed.
         t.displaylevel = level;
         framedArea.area.repaint();
         label.setText("Current display level: " + t.displaylevel);
     }
 
     private void showQueryDlg(int querytype) {
-    // show query dialog for new query
+        // show query dialog for new query
         QueryDialog qDlg = new QueryDialog(querytype, controller);
         qDlg.show();
     }
 
- 
+
 }
         
         
